@@ -25,8 +25,9 @@ class AlgorandQuest():
         }
     
     def start_game(self):
-        console.print(Panel.fit(f"[bold yellow]{plot_summary}[/bold yellow]", title="[bold red]The Algorand Quest: Master the Algorand Blockchain[/bold red]", subtitle="[bold cyan]Made By AlgoRPG Team[/bold cyan]", box=box.DOUBLE, border_style="bold", highlight=True))
+        console.print(Panel(f"[bold yellow]{plot_summary}[/bold yellow]", title="[bold red]The Algorand Quest Master the Algorand Blockchain[/bold red]", subtitle="[bold cyan]Made By AlgoRPG Team[/bold cyan]", box=box.DOUBLE, border_style="bold", expand=True, highlight=True))
         
+        console.print("\n")
         with Progress() as progress:
             task = progress.add_task("[bold]:hourglass: Loading...[/bold]", total=100)
             while not progress.finished:
@@ -44,11 +45,13 @@ class AlgorandQuest():
     def main_game_loop(self):
         while True:
             if self.current_act > len(self.quests_structure) or (self.current_act == len(self.quests_structure) and self.current_quest > self.quests_structure[self.current_act]):
-                console.print(Panel.fit(f"[bold yellow]{after_credits}[/bold yellow]", title="[bold red]AlgoRPG[/bold red]",subtitle="[bold cyan]A Blockchain Adventure[/bold cyan]", box=box.DOUBLE, border_style="bold", highlight=True))
+                console.print("\n")
+                console.print(Panel(f"[bold yellow]{after_credits}[/bold yellow]", title="[bold red]AlgoRPG[/bold red]",subtitle="[bold cyan]A Blockchain Adventure[/bold cyan]", box=box.DOUBLE, border_style="bold", expand=True, highlight=True))
                 break
             
+            console.print("\n")
             self.display_current_quest()
-            action = console.input("[bold yellow]What would you like to do 🤔 : [/bold yellow]")
+            action = console.input("[bold yellow]What would you like to do 🤔: [/bold yellow]")
             with console.status("", spinner="dots") as status:
                 status.update("Executing command...")
                 time.sleep(3)  # simulate a long-running task    
@@ -64,9 +67,8 @@ class AlgorandQuest():
         }
 
         current_quest = quest_description.get((self.current_act, self.current_quest), "Quest not defined")
-        total_quests_in_act = self.quests_structure.get(self.current_act, 0)
         
-        console.print(Panel(f"Current Quest: [bold green]{current_quest}[/bold green]", title=f"[bold red]Quest {self.current_quest} of {total_quests_in_act} in Act {self.current_act}[/bold red]", box=box.SQUARE, border_style="bold", expand=True, highlight=True))
+        console.print(Panel(f"Quest: [bold magenta]{current_quest}[/bold magenta]", title=f"[bold red]Quest {self.current_quest} in Act {self.current_act}[/bold red]", box=box.SQUARE, border_style="bold", expand=True, highlight=True))
         
     def process_action(self, action: str):
         match(self.current_act, self.current_quest):
@@ -88,14 +90,14 @@ class AlgorandQuest():
             try:
                result = subprocess.run(["algokit", "doctor"], capture_output=True, text=True)
                if result.returncode == 0:
-                   console.print(Panel(f"[bold]Quest completed successfully ✅\nThe environment is ready 🚀: {result.stdout}[/bold]", border_style="bold", expand=True, highlight=True))
+                   console.print(Panel(f"[bold]The environment is ready 🚀\n{result.stdout}[/bold]", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True))
                    self.current_quest += 1
                else:
-                   console.print(Panel(f"[bold][yellow]Command is executed but an error occurred ⚠️[/yellow]\nThe environment is not ready 🥲: {result.stderr}[/bold]", border_style="bold", expand=True, highlight=True))
+                   console.print(Panel(f"[bold]The environment is not ready 🥲: {result.stdout}[/bold]", title=f"[bold yellow]Command is executed but an error occurred ⚠️[/bold yellow]", border_style="bold yellow", expand=True, highlight=True))
             except subprocess.CalledProcessError as e:
-                console.print(Panel(f"[bold red]Command executed failed ❗: {e.stderr}[/bold red]", border_style="bold", expand=True, highlight=True))
+                console.print(Panel(f"[bold]Error: {e.stdout}[/bold]", title=f"[bold red]Command executed failed ❗[/bold red]", border_style="bold red", expand=True, highlight=True))
             except Exception as e:
-                console.print(Panel(f"[bold red]An error occurred ❗❗: {str(e)}[/bold red]", border_style="bold", expand=True, highlight=True))
+                console.print(Panel(f"[bold]Error: {str(e)}[/bold]", title=f"[bold red]An error occurred ❗❗[/bold red]", border_style="bold red", expand=True, highlight=True))
                 
         else:
             print_quest_not_completed()
@@ -111,14 +113,14 @@ class AlgorandQuest():
             try:
                 result = subprocess.run(["algokit", "goal", "account", "import", "-m", self.player["mnemonic"]], capture_output=True, text=True)
                 if result.returncode == 0:
-                   console.print(Panel(f"[bold]Quest completed successfully ✅\nYour address ✉️ :  [green]{self.player['address']}[/green]\nKeep your private key safe 🔑 : [red]{self.player['private_key']}[/red][/bold]\nAuto import mnemonic in your computer 💾", border_style="bold", expand=True, highlight=True))
+                   console.print(Panel(f"[bold]Your address ✉️:  [green]{self.player['address']}[/green]\nKeep your private key safe 🔑: [red]{self.player['private_key']}[/red][/bold]\nAuto import mnemonic in your computer 💾", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True))
                    self.current_quest += 1
                 else:
-                    console.print(Panel(f"[bold][yellow]Command is executed but an error occurred ⚠️[/yellow]\nCan't create account 😢 : {result.stdout}[/bold]", border_style="bold", expand=True, highlight=True))
+                    console.print(Panel(f"[bold]Can't create account 😢: {result.stdout}[/bold]", title="[yellow]Command is executed but an error occurred ⚠️[/yellow]", border_style="bold yellow", expand=True, highlight=True))
             except subprocess.CalledProcessError as e:
-                console.print(Panel(f"[bold red]Command executed failed ❗: {e.stdout}[/bold red]", border_style="bold", expand=True, highlight=True))
+                console.print(Panel(f"[bold]Error:{e.stdout}[/bold]", title="[bold red]Command executed failed ❗[/bold red]", border_style="bold red", expand=True, highlight=True))
             except Exception as e:
-                console.print(Panel(f"[bold red]An error occurred ❗❗: {str(e)}[/bold red]", border_style="bold", expand=True, highlight=True))
+                console.print(Panel(f"[bold]Error: {str(e)}[/bold]", title="[bold red]An error occurred ❗❗[/bold red]", border_style="bold red", expand=True, highlight=True))
         
         else:
             print_quest_not_completed()
@@ -131,14 +133,14 @@ class AlgorandQuest():
             try:
                 result = subprocess.run(["algokit", "goal", "clerk", "send", "-a", amount, "-f", from_addr, "-t",    self.player["address"]], capture_output=True, text=True)
                 if result.returncode == 0:
-                   console.print(Panel(f"[bold]Quest completed successfully ✅\nFund 10 Algo 🪙 to {self.player['address']} successfully !", border_style="bold", expand=True, highlight=True))
+                   console.print(Panel(f"[bold]Fund 10 Algo 🪙 to {self.player['address']} successfully !", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True))
                    self.current_quest += 1
                 else:
-                   console.print(Panel(f"[bold][yellow]Command is executed but an error occurred ⚠️[/yellow]\nCan't fund your account 😢 : {result.stdout}[/bold]", border_style="bold", expand=True, highlight=True))
+                   console.print(Panel(f"[bold]Can't fund your account 😢: {result.stdout}[/bold]", title="[bold][yellow]Command is executed but an error occurred ⚠️[/bold yellow]", border_style="bold yellow", expand=True, highlight=True))
             except subprocess.CalledProcessError as e:
-                console.print(Panel(f"[bold red]Command executed failed ❗: {e.stdout}[/bold red]", border_style="bold", expand=True, highlight=True))
+                console.print(Panel(f"[bold]Error: {e.stdout}[/bold]", title="[bold red]Command executed failed ❗[/bold red]", border_style="bold red", expand=True, highlight=True))
             except Exception as e:
-                console.print(Panel(f"[bold red]An error occurred ❗❗: {str(e)}[/bold red]", border_style="bold", expand=True, highlight=True))
+                console.print(Panel(f"[bold]Error: {str(e)}[/bold]", title="[bold red]An error occurred ❗❗[/bold red]", border_style="bold red", expand=True, highlight=True))
         
         else:
             print_quest_not_completed()
@@ -146,29 +148,29 @@ class AlgorandQuest():
     def process_check_account_balance(self, action: str):
         if action.lower().strip() == "balance":
             account_info = self.algod_client.account_info(self.player["address"])
-            console.print(Panel(f"[bold]Quest completed successfully ✅\nYour account balance 💰 : {account_info.get('amount') // 1000000} Algo[/bold]", border_style="bold", expand=True, highlight=True)) # type: ignore
+            console.print(Panel(f"[bold]Your account balance 💰: {account_info.get('amount') // 1000000} Algo[/bold]", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True)) # type: ignore
             self.current_quest += 1
         else:
             print_quest_not_completed()
         
     def process_send_algo(self, action: str):
         if action.lower().strip() == "send":
-            receive_addr = console.input("[bold yellow]Enter the address or username of the receiver to send Algo 📝 : [/bold yellow]")
-            amount = console.input("[bold yellow]Enter the amount of Algo to send 💵 : [/bold yellow]")
+            receive_addr = console.input("[bold yellow]Enter the address or username of the receiver to send Algo 📝: [/bold yellow]")
+            amount = console.input("[bold yellow]Enter the amount of Algo to send 💵: [/bold yellow]")
             amount_microalgos = str(int(float(amount) * 1000000))
             try:
                 result = subprocess.run(["algokit", "goal", "clerk", "send", "-a", amount_microalgos, "-f", self.player["address"], "-t", receive_addr], capture_output=True, text=True)
                 
                 if result.returncode == 0:
                     account_info = self.algod_client.account_info(self.player["address"])
-                    console.print(Panel(f"[bold]Quest completed successfully ✅\nTransaction successfully 🎉. Send {amount} Algo to [green]{receive_addr}[/green]\nTransaction fees: 0.001 Algo\nYour available balance is {account_info.get('amount') / 1000000} Algo[/bold]", border_style="bold", expand=True, highlight=True)) # type: ignore
+                    console.print(Panel(f"[bold]Transaction successfully 🎉. Send {amount} Algo to [green]{receive_addr}[/green]\nTransaction fees: 0.001 Algo\nYour available balance is {account_info.get('amount') / 1000000} Algo[/bold]", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True)) # type: ignore
                     self.current_quest += 1
                 else:
-                    console.print(Panel(f"[bold][yellow]Command is executed but an error occurred ⚠️[/yellow]\nCan't send Algo to {receive_addr} 😢 : {result.stdout}[/bold]", border_style="bold", expand=True, highlight=True))
+                    console.print(Panel(f"[bold]Can't send Algo to {receive_addr} 😢: {result.stdout}[/bold]", title="[bold yellow]Command is executed but an error occurred ⚠️[/bold yellow]", border_style="bold yellow", expand=True, highlight=True))
             except subprocess.CalledProcessError as e:
-                console.print(Panel(f"[bold red]Command executed failed ❗: {e.stdout}[/bold red]", border_style="bold", expand=True, highlight=True))
+                console.print(Panel(f"[bold]Error: {e.stdout}[/bold]", title="[bold red]Command executed failed ❗[/bold red]", border_style="bold red", expand=True, highlight=True))
             except Exception as e:
-                console.print(Panel(f"[bold red]An error occurred ❗❗: {str(e)}[/bold red]", border_style="bold", expand=True, highlight=True))
+                console.print(Panel(f"[bold]Error: {str(e)}[/bold]", title="[bold red]An error occurred ❗❗[/bold red]", border_style="bold red", expand=True, highlight=True))
             
         else:
             print_quest_not_completed()
