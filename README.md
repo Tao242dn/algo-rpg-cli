@@ -6,7 +6,7 @@ A command-line interface RPG game built with Algorand blockchain integration.
 
 Before you begin, ensure you have met the following requirements:
 
-- [AlgoKit](https://github.com/algorandfoundation/algokit-cli) installed
+- [AlgoKit](https://developer.algorand.org/docs/get-started/algokit/#install-algokit) installed
 - [Python](https://www.python.org/downloads/) (3.12 or higher) installed
 
 ## Getting Started
