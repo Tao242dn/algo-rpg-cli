@@ -1,6 +1,7 @@
 import subprocess
 import time
 import random
+import os
 from contents import plot_summary, after_credits
 from rich import box
 from rich.console import Console
@@ -12,7 +13,7 @@ from algosdk.v2client import algod
 console = Console()
 
 def print_quest_not_completed():
-    console.print(Panel(f"[bold red]Quest not completed yet 🙁. Don't give up try again.[/bold red]", border_style="bold", expand=True, highlight=True))
+    console.print(Panel(f"[bold]Quest not completed yet 🙁. Don't give up try again.[/bold]", border_style="bold red", expand=True, highlight=True))
 
 class AlgorandQuest():
     def __init__(self):
@@ -22,6 +23,7 @@ class AlgorandQuest():
         self.current_quest:int = 1
         self.quests_structure = {
            1: 5,
+           2: 4,
         }
     
     def start_game(self):
@@ -64,6 +66,10 @@ class AlgorandQuest():
             (1, 3): "Funding the account",
             (1, 4): "Check the account balance",
             (1, 5): "Send ALGO to another account",
+            (2, 1): "Initialize a new project",
+            (2, 2): "Build the contract",
+            (2, 3): "Test the contract",
+            (2, 4): "Audit the contract",
         }
 
         current_quest = quest_description.get((self.current_act, self.current_quest), "Quest not defined")
@@ -82,9 +88,21 @@ class AlgorandQuest():
                 self.process_check_account_balance(action)
             case (1, 5):
                 self.process_send_algo(action)
+            case (2, 1):
+                self.process_init_project(action)
+            case (2, 2):
+                self.process_build_contract(action)
+            case (2, 3):
+                self.process_test_contract(action)
+            case (2, 4):
+                self.process_audit_contract(action)
             case _:
                 console.print(Panel(f"[bold red]Quest not completed yet![/bold red]"))
-                
+        
+        if self.current_quest > self.quests_structure[self.current_act]:
+            self.current_act += 1
+            self.current_quest = 1
+    
     def process_check_env(self, action: str):
         if action.lower().strip() == "env":
             try:
@@ -93,7 +111,7 @@ class AlgorandQuest():
                    console.print(Panel(f"[bold]The environment is ready 🚀\n{result.stdout}[/bold]", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True))
                    self.current_quest += 1
                else:
-                   console.print(Panel(f"[bold]The environment is not ready 🥲: {result.stdout}[/bold]", title=f"[bold yellow]Command is executed but an error occurred ⚠️[/bold yellow]", border_style="bold yellow", expand=True, highlight=True))
+                   console.print(Panel(f"[bold]The environment is not ready 🥲: {result.stderr}[/bold]", title=f"[bold yellow]Command is executed but an error occurred ⚠️[/bold yellow]", border_style="bold yellow", expand=True, highlight=True))
             except subprocess.CalledProcessError as e:
                 console.print(Panel(f"[bold]Error: {e.stdout}[/bold]", title=f"[bold red]Command executed failed ❗[/bold red]", border_style="bold red", expand=True, highlight=True))
             except Exception as e:
@@ -116,7 +134,7 @@ class AlgorandQuest():
                    console.print(Panel(f"[bold]Your address ✉️:  [green]{self.player['address']}[/green]\nKeep your private key safe 🔑: [red]{self.player['private_key']}[/red][/bold]\nAuto import mnemonic in your computer 💾", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True))
                    self.current_quest += 1
                 else:
-                    console.print(Panel(f"[bold]Can't create account 😢: {result.stdout}[/bold]", title="[yellow]Command is executed but an error occurred ⚠️[/yellow]", border_style="bold yellow", expand=True, highlight=True))
+                    console.print(Panel(f"[bold]Can't create account 😢: {result.stderr}[/bold]", title="[yellow]Command is executed but an error occurred ⚠️[/yellow]", border_style="bold yellow", expand=True, highlight=True))
             except subprocess.CalledProcessError as e:
                 console.print(Panel(f"[bold]Error:{e.stdout}[/bold]", title="[bold red]Command executed failed ❗[/bold red]", border_style="bold red", expand=True, highlight=True))
             except Exception as e:
@@ -133,15 +151,14 @@ class AlgorandQuest():
             try:
                 result = subprocess.run(["algokit", "goal", "clerk", "send", "-a", amount, "-f", from_addr, "-t",    self.player["address"]], capture_output=True, text=True)
                 if result.returncode == 0:
-                   console.print(Panel(f"[bold]Fund 10 Algo 🪙 to {self.player['address']} successfully !", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True))
+                   console.print(Panel(f"[bold]Fund 10 Algo 🪙 to [cyan]{self.player['address']}[/cyan] successfully !", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True))
                    self.current_quest += 1
                 else:
-                   console.print(Panel(f"[bold]Can't fund your account 😢: {result.stdout}[/bold]", title="[bold][yellow]Command is executed but an error occurred ⚠️[/bold yellow]", border_style="bold yellow", expand=True, highlight=True))
+                   console.print(Panel(f"[bold]Can't fund your account 😢: {result.stderr}[/bold]", title="[bold][yellow]Command is executed but an error occurred ⚠️[/bold yellow]", border_style="bold yellow", expand=True, highlight=True))
             except subprocess.CalledProcessError as e:
                 console.print(Panel(f"[bold]Error: {e.stdout}[/bold]", title="[bold red]Command executed failed ❗[/bold red]", border_style="bold red", expand=True, highlight=True))
             except Exception as e:
                 console.print(Panel(f"[bold]Error: {str(e)}[/bold]", title="[bold red]An error occurred ❗❗[/bold red]", border_style="bold red", expand=True, highlight=True))
-        
         else:
             print_quest_not_completed()
             
@@ -166,12 +183,100 @@ class AlgorandQuest():
                     console.print(Panel(f"[bold]Transaction successfully 🎉. Send {amount} Algo to [green]{receive_addr}[/green]\nTransaction fees: 0.001 Algo\nYour available balance is {account_info.get('amount') / 1000000} Algo[/bold]", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True)) # type: ignore
                     self.current_quest += 1
                 else:
-                    console.print(Panel(f"[bold]Can't send Algo to {receive_addr} 😢: {result.stdout}[/bold]", title="[bold yellow]Command is executed but an error occurred ⚠️[/bold yellow]", border_style="bold yellow", expand=True, highlight=True))
+                    console.print(Panel(f"[bold]Can't send Algo to {receive_addr} 😢: {result.stderr}[/bold]", title="[bold yellow]Command is executed but an error occurred ⚠️[/bold yellow]", border_style="bold yellow", expand=True, highlight=True))
             except subprocess.CalledProcessError as e:
                 console.print(Panel(f"[bold]Error: {e.stdout}[/bold]", title="[bold red]Command executed failed ❗[/bold red]", border_style="bold red", expand=True, highlight=True))
             except Exception as e:
                 console.print(Panel(f"[bold]Error: {str(e)}[/bold]", title="[bold red]An error occurred ❗❗[/bold red]", border_style="bold red", expand=True, highlight=True))
+        else:
+            print_quest_not_completed()
             
+            
+    def process_init_project(self, action: str):
+        if action.lower().strip() == "init":
+            url = "https://github.com/Tao242dn/auction_template.git"
+            non_ie_option = "--UNSAFE-SECURITY-accept-template-url"
+            project_name = console.input("[bold yellow]Enter the name of the project ⌨️ : [/bold yellow]")
+            self.player = {
+                "project_directory": project_name + "/"
+            }
+            try:
+                result = subprocess.run(["algokit", "init", "-n", project_name, "--template-url", url, "--no-git", "--no-ide", "--no-workspace", "--bootstrap", non_ie_option], capture_output=True, text=True)
+                if result.returncode == 0:
+                    console.print(Panel(f"[bold]Project [cyan]{project_name}[/cyan] initialized successfully 🎉\n{result.stdout}[/bold]", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True))
+                    self.current_quest += 1
+                else:
+                    console.print(Panel(f"[bold]Can't initialization [cyan]{project_name}[/cyan] project 😔: {result.stderr}[/bold]", title="[bold yellow]Command is executed but an error occurred ⚠️[/bold yellow]", border_style="bold yellow", expand=True, highlight=True))
+            except subprocess.CalledProcessError as e:
+                console.print(Panel(f"[bold]Error: {e.stdout}[/bold]", title="[bold red]Command executed failed ❗[/bold red]", border_style="bold red", expand=True, highlight=True))
+            except Exception as e:
+                console.print(Panel(f"[bold]Error: {str(e)}[/bold]", title="[bold red]An error occurred ❗❗[/bold red]", border_style="bold red", expand=True, highlight=True))
+        else:
+            print_quest_not_completed()
+            
+            
+    def process_build_contract(self, action: str):
+        if action.lower().strip() == "build":
+            try:
+                # Change to the project directory
+                project_dir = self.player.get("project_directory", "")
+                if project_dir:
+                    os.chdir(project_dir)
+                    
+                result = subprocess.run(["poetry", "run", "python", "-m", "smart_contracts", "build"], capture_output=True, text=True)
+                if result.returncode == 0:
+                    console.print(Panel(f"[bold]Building contract successfully 🎉\nCreating [green]{result.stdout}[/green]Let's test contract 🧪", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True))
+                    self.current_quest += 1
+                else:
+                    console.print(Panel(f"[bold]Can't build contract 😢: {result.stderr}[/bold]", title="[bold yellow]Command is executed but an error occurred ⚠️[/bold yellow]", border_style="bold yellow", expand=True, highlight=True))
+            except subprocess.CalledProcessError as e:
+                console.print(Panel(f"[bold]Error: {e.stdout}[/bold]", title="[bold red]Command executed failed ❗[/bold red]", border_style="bold red", expand=True, highlight=True))
+            except Exception as e:
+                console.print(Panel(f"[bold]Error: {str(e)}[/bold]", title="[bold red]An error occurred ❗❗[/bold red]", border_style="bold red", expand=True, highlight=True))
+        else:
+            print_quest_not_completed()
+            
+            
+    def process_test_contract(self, action: str):
+        if action.lower().strip() == "test":
+            try: 
+                result = subprocess.run(["poetry", "run", "pytest"], capture_output=True, text=True)
+                if result.returncode == 0:
+                    console.print(Panel(f"[bold]Testing contract successfully 🎉\n{result.stdout}[/bold]", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True))
+                    self.current_quest += 1
+                else:
+                    console.print(Panel(f"[bold]Can't test contract 😢: {result.stderr}[/bold]", title="[bold yellow]Command is executed but an error occurred ⚠️[/bold yellow]", border_style="bold yellow", expand=True, highlight=True))
+            except subprocess.CalledProcessError as e:
+                console.print(Panel(f"[bold]Error: {e.stdout}[/bold]", title="[bold red]Command executed failed ❗[/bold red]", border_style="bold red", expand=True, highlight=True))
+            except Exception as e:
+                console.print(Panel(f"[bold]Error: {str(e)}[/bold]", title="[bold red]An error occurred ❗❗[/bold red]", border_style="bold red", expand=True, highlight=True))
+        else:
+            print_quest_not_completed()
+            
+    
+    def process_audit_contract(self, action: str):
+        if action.lower().strip() == "audit":
+            try:
+                # Generate requirements.txt
+                subprocess.run(["poetry", "export", "--without=dev", "-o", "requirements.txt"], capture_output=True, text=True)
+                
+                result = subprocess.run(["poetry", "run", "pip-audit", "-r", "requirements.txt"], capture_output=True, text=True)
+                if result.returncode == 0:
+                    console.print(Panel(f"[bold]Auditing contract successfully 🎉\nLet's deploy contract 🌐[/bold]", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True))
+                    self.current_quest += 1
+                else:
+                    console.print(Panel(f"[bold]Can't audit contract 😢: {result.stderr}[/bold]", title="[bold yellow]Command is executed but an error occurred ⚠️[/bold yellow]", border_style="bold yellow", expand=True, highlight=True))
+            except subprocess.CalledProcessError as e:
+                console.print(Panel(f"[bold]Error: {e.stdout}[/bold]", title="[bold red]Command executed failed ❗[/bold red]", border_style="bold red", expand=True, highlight=True))
+            except Exception as e:
+                console.print(Panel(f"[bold]Error: {str(e)}[/bold]", title="[bold red]An error occurred ❗❗[/bold red]", border_style="bold red", expand=True, highlight=True))
+        else:
+            print_quest_not_completed()
+            
+    
+    def process_deploy_contract(self, action: str):
+        if action.lower().strip() == "deploy":
+            pass
         else:
             print_quest_not_completed()
 
