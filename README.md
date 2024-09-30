@@ -6,8 +6,8 @@ A command-line interface RPG game built with Algorand blockchain integration.
 
 Before you begin, ensure you have met the following requirements:
 
-- <a href="https://developer.algorand.org/docs/get-started/algokit/#install-algokit" target="_blank">[Algokit]</a> installed
-- <a href="https://www.python.org/downloads/" target="_blank">[Python(3.12 or higher)]</a> installed
+- <a href="https://developer.algorand.org/docs/get-started/algokit/#install-algokit" target="_blank">Algokit</a>
+- <a href="https://www.python.org/downloads/" target="_blank">Python(3.12 or higher)</a>
 
 ## Getting Started
 
