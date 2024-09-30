@@ -1,7 +1,6 @@
 import subprocess
 import time
 import random
-from rich.table import Dict
 from contents import plot_summary, after_credits
 from rich import box
 from rich.console import Console
