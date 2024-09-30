@@ -37,6 +37,10 @@ Follow these steps to get the project up and running on your local machine:
    ```bash
    pip install -r requirements.txt
    ```
+5. Run the SandBox
+   ```bash
+   algokit localnet start
+   ```
 
 5. Run the game:
    ```bash
