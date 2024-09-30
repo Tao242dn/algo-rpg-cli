@@ -23,7 +23,7 @@ class AlgorandQuest():
         self.current_quest:int = 1
         self.quests_structure = {
            1: 5,
-           2: 4,
+           2: 5,
         }
     
     def start_game(self):
@@ -70,7 +70,7 @@ class AlgorandQuest():
             (2, 2): "Build the contract",
             (2, 3): "Test the contract",
             (2, 4): "Audit the contract",
-            # (2, 5): "Deploy the contract",
+            (2, 5): "Deploy the contract",
         }
 
         current_quest = quest_description.get((self.current_act, self.current_quest), "Quest not defined")
@@ -97,8 +97,8 @@ class AlgorandQuest():
                 self.process_test_contract(action)
             case (2, 4):
                 self.process_audit_contract(action)
-            # case (2, 5):
-            #     self.process_deploy_contract(action)
+            case (2, 5):
+                self.process_deploy_contract(action)
             case _:
                 console.print(Panel(f"[bold red]Quest not completed yet![/bold red]"))
         
@@ -277,25 +277,25 @@ class AlgorandQuest():
             print_quest_not_completed()
             
     
-    # def process_deploy_contract(self, action: str):
-    #     if action.lower().strip() == "deploy":
-    #         try:
-    #             # Generate .env file
-    #             subprocess.run(["algokit", "generate", "env-file", "-a", "target_network", "localnet"],
-    #             capture_output=True, text=True)
+    def process_deploy_contract(self, action: str):
+        if action.lower().strip() == "deploy":
+            try:
+                # Generate .env file
+                subprocess.run(["algokit", "generate", "env-file", "-a", "target_network", "localnet", "-f"],
+                capture_output=True, text=True)
                 
-    #             result = subprocess.run(["poetry", "run", "python", "-m", "smart_contracts", "deploy"],       capture_output=True, text=True)
-    #             if result.returncode == 0:
-    #                 console.print(Panel(f"[bold]Deploying contract successfully 🎉\nCongratulations! You have successfully deployed your contract 🧭[/bold]", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True))
-    #                 self.current_quest += 1
-    #             else:
-    #                 console.print(Panel(f"[bold]Can't deploy contract 😢: {result.stderr}[/bold]", title="[bold yellow]Command is executed but an error occurred ⚠️[/bold yellow]", border_style="bold yellow", expand=True, highlight=True))
-    #         except  subprocess.CalledProcessError as e:
-    #             console.print(Panel(f"[bold]Error: {e.stdout}[/bold]", title="[bold red]Command executed failed ❗[/bold red]", border_style="bold red", expand=True, highlight=True))
-    #         except Exception as e:
-    #             console.print(Panel(f"[bold]Error: {str(e)}[/bold]", title="[bold red]An error occurred ❗❗[/bold red]", border_style="bold red", expand=True, highlight=True))
-    #     else:
-    #         print_quest_not_completed()
+                result = subprocess.run(["algokit", "project", "deploy", "localnet"], capture_output=True, text=True)
+                if result.returncode == 0:
+                    console.print(Panel(f"[bold]Deploying contract successfully 🎉\nCongratulations! You have successfully deployed your contract 🧭[/bold]", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True))
+                    self.current_quest += 1
+                else:
+                    console.print(Panel(f"[bold]Can't deploy contract 😢: {result.stderr}[/bold]", title="[bold yellow]Command is executed but an error occurred ⚠️[/bold yellow]", border_style="bold yellow", expand=True, highlight=True))
+            except  subprocess.CalledProcessError as e:
+                console.print(Panel(f"[bold]Error: {e.stdout}[/bold]", title="[bold red]Command executed failed ❗[/bold red]", border_style="bold red", expand=True, highlight=True))
+            except Exception as e:
+                console.print(Panel(f"[bold]Error: {str(e)}[/bold]", title="[bold red]An error occurred ❗❗[/bold red]", border_style="bold red", expand=True, highlight=True))
+        else:
+            print_quest_not_completed()
             
 
 if __name__ == "__main__":
