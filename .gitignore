@@ -1,3 +1,5 @@
 venv/
 __pycache__/
 auction_project/
+.env-account
+*.png
