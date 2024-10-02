@@ -17,7 +17,7 @@ quests = [
     
     "Checking Your Provisions [red](command: balance)[/red] Wise adventurers keep track of their resources. Use the balance command to check the balance of your Algorand account. This will show you how much Algo you have available for your quests.",
     
-    "Sharing the Spoils [red](command: send)[/red] Generosity is a virtue, even in the digital realm. Use the send command to send Algo to another Algorand account. This is like sharing your treasure with a fellow adventurer",
+    "Sharing the Spoils [red](command: send)[/red] Generosity is a virtue, even in the digital realm. Use the send command to send Algo to another Algorand account. This is like sharing your treasure with a fellow adventurer [bold](note: 1 Algo = 1_000_000 MicroAlgos)[/bold]",
     
     "Project Genesis [red](command: init)[/red] Time to craft something new! Use the init command to initialize a new Algorand project. This creates the foundation for building your own smart contracts – the magical spells of the Algorand world.",
     
