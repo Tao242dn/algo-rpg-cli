@@ -14,8 +14,6 @@ from algosdk.v2client import algod
 
 console = Console()
 
-# AIzaSyCMdww8BVWntpeG3JbRzP5ERs5yqyQdUHo
-
 def print_quest_not_completed():
     console.print(Panel(f"[bold]Quest not completed yet 🙁. Don't give up try again.[/bold]", title="[bold red]Oops! Something went wrong 😭[/bold red]", border_style="bold red", expand=True, highlight=True))
 

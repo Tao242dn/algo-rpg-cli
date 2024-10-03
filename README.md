@@ -37,6 +37,12 @@ Follow these steps to get the project up and running on your local machine:
    ```bash
    pip install -r requirements.txt
    ```
+
+5. Create .env file to use the Gemini API, you'll need an API key. If you don't already have one, create a key in [Google AI Studio](https://aistudio.google.com/app/apikey).
+   ```env
+   API_KEY=YOUR_API_KEY
+   ```
+   
 5. Run the SandBox
    ```bash
    algokit localnet start

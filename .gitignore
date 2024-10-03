@@ -4,3 +4,4 @@ auction_project/
 .env-account
 *.png
 *.log
+*.env

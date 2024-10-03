@@ -2,6 +2,7 @@ import os
 import fnmatch
 import logging
 import time
+import os
 import google.generativeai as genai
 from termcolor import colored
 from prompt_toolkit import prompt
@@ -18,9 +19,8 @@ from algosdk.v2client import algod, indexer # Algorand SDK
 
 console = Console()
 
-
 # Initialize Gemini client
-genai.configure(api_key="AIzaSyCMdww8BVWntpeG3JbRzP5ERs5yqyQdUHo")
+genai.configure(api_key=os.environ["API_KEY"])
 model = genai.GenerativeModel('gemini-1.5-pro')
 
 logging.basicConfig(filename='algo_eng.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
