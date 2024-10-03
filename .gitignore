@@ -3,3 +3,4 @@ __pycache__/
 auction_project/
 .env-account
 *.png
+*.log

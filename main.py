@@ -2,17 +2,19 @@ import subprocess
 import time
 import random
 import os
-import base64
-from dotenv import load_dotenv
-from contents import plot_summary, quests, after_credits
+from algo_eng import start_algo_eng
+from contents import plot_summary, quests, choice_content, after_credits
 from rich import box
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress
+from rich.prompt import Prompt
 from algosdk import account, mnemonic, transaction
 from algosdk.v2client import algod
 
 console = Console()
+
+# AIzaSyCMdww8BVWntpeG3JbRzP5ERs5yqyQdUHo
 
 def print_quest_not_completed():
     console.print(Panel(f"[bold]Quest not completed yet 🙁. Don't give up try again.[/bold]", title="[bold red]Oops! Something went wrong 😭[/bold red]", border_style="bold red", expand=True, highlight=True))
@@ -38,8 +40,21 @@ class AlgorandQuest():
                 progress.update(task, advance=random.uniform(0.5, 2))
                 time.sleep(0.05)
                 
-        self.setup_algod_client()
-        self.main_game_loop()
+        console.print("\n")
+        while True:
+            choice = Prompt.ask(choice_content, choices=["q&a", "game", "quit"],default="quit")
+            match(choice):
+                case "q&a":
+                    console.print("\n")
+                    start_algo_eng()
+                case "game":
+                    self.setup_algod_client()
+                    self.main_game_loop()
+                case "quit":
+                    console.print(Panel("[bold yellow]Thank you for visiting AlgoRPG! Bye bye! 👋[/bold yellow]", title="[bold red]Game Over[/bold red]", border_style="bold", expand=True))
+                    break
+                case _:
+                    console.print(Panel("[bold yellow]Invalid choice. Please try again.[/bold yellow]", title="[bold red]Oops! Something went wrong 😭[/bold red]", border_style="bold", expand=True))
         
     def setup_algod_client(self):
         algo_token = "a" * 64
@@ -136,11 +151,7 @@ class AlgorandQuest():
                 "private_key": private_key,
                 "mnemonic": mnemonic.from_private_key(private_key),
             }
-            # env_file_path = '.env-account'
-            # with open(env_file_path, 'w') as env_file:
-            #     env_file.write(f"ALGO_ADDRESS={address}\n")
-            #     env_file.write(f"ALGO_PRIVATE_KEY={private_key}\n")
-            #     env_file.write(f"MNEMONIC={self.player["mnemonic"]}\n")
+            
             try:
                 result = subprocess.run(["algokit", "goal", "account", "import", "-m", self.player["mnemonic"]], capture_output=True, text=True)
                 if result.returncode == 0:
@@ -327,43 +338,6 @@ class AlgorandQuest():
             print_quest_not_completed()
             
     
-    # def process_create_nft(self, action: str):
-    #     if action.lower().strip() == "create and claim nft":
-    #         load_dotenv('.env-account', override=True)
-    #         address = os.getenv("ALGO_ADDRESS")
-    #         assert_name = console.input("[bold yellow]Enter the name of your NFT 🖌️ : [/bold yellow]")
-    #         sp = self.algod_client.suggested_params()
-    #         txn = transaction.AssetConfigTxn(
-    #             sender=address,
-    #             sp = sp,
-    #             default_frozen=False,
-    #             unit_name = "alrpg",
-    #             asset_name = assert_name,
-    #             manager=address,
-    #             reserve=address,
-    #             freeze=address,
-    #             clawback=address,
-    #             url = "https://imgur.com/a/nOzHyUH",
-    #             total = 1,
-    #             decimals=0,
-    #             strict_empty_address_check=False
-    #         )
-            
-    #         private_key = os.getenv("ALGO_PRIVATE_KEY", "")
-    #         pk = base64.b64decode(private_key)[:32]
-            
-    #         stxn = txn.sign(pk)
-            
-    #         txid = self.algod_client.send_transaction(stxn)
-            
-    #         results = transaction.wait_for_confirmation(self.algod_client, txid, 4)
-            
-    #         created_asset = results["asset-index"]
-            
-    #         console.print(Panel(f"[bold]Address [cyan]{self.player['address']}[/cyan] claim NFT successfully 🎉\n[green]{txid}[/green][/bold]Sent asset create transaction with txid: {txid}\nResult confirmed in round: {results['confirmed-round']}\nAsset ID created: {created_asset}[/bold]\nCheck your NFT in this link: [yellow]{txn.url}[/yellow]", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True))
-    #     else:
-    #         print_quest_not_completed()
-
 if __name__ == "__main__":
     game = AlgorandQuest()
     game.start_game()        
