@@ -32,7 +32,7 @@ quests = [
     "Preserving the Lore [red](command: upload)[/red] Important artifacts and knowledge deserve to be preserved. Use the upload command to upload files to IPFS (InterPlanetary File System), a decentralized storage network. This ensures that your data is immutable and accessible to anyone, even if parts of the network go offline. Think of it as storing your magical scrolls in a secure, distributed library."
 ]
 
-choice_content = "[bold green]Choose an option would like:\n1. Option [red]q&a[/red] you can interactive with AI really insteresting huh.\n2. With [red]game[/red] we start the game explore 11 quests.\n3. Or [red]quit[/red] quit the game, your journey is over.[/bold green]\nTell me what your choice:"
+choice_content = "[bold green]Choose an option ypu would like:\n1. Option 🤖 [red]q&a[/red] you can interactive with AI really insteresting huh.\n2. With 🎮 [red]game[/red] we start the game explore 11 quests.\n3. Or 👌 [red]quit[/red] quit the game, your journey is over.[/bold green]\nTell me what your choice:"
 
 after_credits = """
 Thank you for playing AlgoRPG!
