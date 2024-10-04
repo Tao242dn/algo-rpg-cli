@@ -29,7 +29,7 @@ class AlgorandQuest():
         }
     
     def start_game(self):
-        console.print(Panel(f"[bold yellow]{plot_summary}[/bold yellow]", title="[bold red]⚔️  The Algorand Quest Master the Algorand Blockchain ⚔️ [/bold red]", subtitle="[bold cyan]Made By AlgoRPG Team 💻[/bold cyan]", box=box.DOUBLE, border_style="bold", expand=True, highlight=True))
+        console.print(Panel(f"[bold yellow]{plot_summary}[/bold yellow]", title="[bold red]⚔️  The Algorand Quest Master The Algorand Blockchain ⚔️ [/bold red]", subtitle="[bold cyan]Made By AlgoRPG Team 💻[/bold cyan]", box=box.DOUBLE, border_style="bold", expand=True, highlight=True))
         
         console.print("\n")
         with Progress() as progress:
@@ -40,7 +40,7 @@ class AlgorandQuest():
                 
         console.print("\n")
         while True:
-            choice = Prompt.ask(choice_content, choices=["q&a", "game", "quit"],default="quit")
+            choice = Prompt.ask(choice_content, choices=["q&a", "game", "quit"])
             match(choice):
                 case "q&a":
                     console.print("\n")
@@ -63,7 +63,7 @@ class AlgorandQuest():
         while True:
             if self.current_act > len(self.quests_structure) or (self.current_act == len(self.quests_structure) and self.current_quest > self.quests_structure[self.current_act]):
                 console.print("\n")
-                console.print(Panel(f"[bold yellow]{after_credits}[/bold yellow]", title="[bold red]AlgoRPG 🗡️[/bold red]",subtitle="[bold cyan]A Blockchain Adventure 🏛️[/bold cyan]", box=box.DOUBLE, border_style="bold", expand=True, highlight=True))
+                console.print(Panel(f"[bold yellow]{after_credits}[/bold yellow]", title="[bold red]AlgoRPG 🗡️ [/bold red]",subtitle="[bold cyan]A Blockchain Adventure 🏛️ [/bold cyan]", box=box.DOUBLE, border_style="bold", expand=True, highlight=True))
                 break
             
             console.print("\n")
