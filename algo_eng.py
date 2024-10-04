@@ -3,31 +3,35 @@ import fnmatch
 import logging
 import time
 import os
+from dotenv import load_dotenv
 import google.generativeai as genai
 from termcolor import colored
 from prompt_toolkit import prompt
 from prompt_toolkit.styles import Style
 from prompt_toolkit.completion import WordCompleter
 from rich import print as rprint
+from rich import box
 from rich.markdown import Markdown
 from rich.console import Console
 from rich.table import Table
+from rich.panel import Panel
 import difflib
 import re
 import json  # For handling JSON data
 from algosdk.v2client import algod, indexer # Algorand SDK
 
+load_dotenv('.env')
 console = Console()
 
 # Initialize Gemini client
-genai.configure(api_key=os.environ["API_KEY"])
+genai.configure(api_key=os.getenv("API_KEY"))
 model = genai.GenerativeModel('gemini-1.5-pro')
 
 logging.basicConfig(filename='algo_eng.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-ALGOD_ADDRESS = "https://mainnet-api.algonode.cloud"  # Replace with your Algod address
-ALGOD_TOKEN = "a" * 64     # Replace with your Algod token
-INDEXER_ADDRESS = "https://mainnet-idx.algonode.cloud" # Replace with your indexer address
+ALGOD_ADDRESS = "https://testnet-api.algonode.cloud"  # Replace with your Algod address we are using testnet
+ALGOD_TOKEN = "a" * 64     
+INDEXER_ADDRESS = "https://testnet-idx.algonode.cloud" # Replace with your indexer address we are using testnet
 INDEXER_TOKEN = "a" * 64
 
 algo_client = algod.AlgodClient(ALGOD_TOKEN, ALGOD_ADDRESS)
@@ -463,7 +467,7 @@ def chat_with_ai(user_message, is_edit_request=False, retry_count=0, added_files
         
 def algo_explain(concept):
     """Explains an Algorand concept using Algo."""
-    prompt = f"Explain the Algorand blockchain of '{concept}' concept to a beginner, providing clear examples."
+    prompt = f"Explain the concept of '{concept}' in the Algorand blockchain to a beginner. Use simple language and provide practical examples to illustrate how it works in real-life scenarios."
     response = chat_with_ai(prompt)
     return response        
     
@@ -488,17 +492,22 @@ def algo_explorer(query):  #  Simplified example, needs error handling
 def start_algo_eng():
     global last_ai_response, conversation_history
 
-    print(colored("Algo engineer is ready to help you.", "cyan"))
-    print("\nAvailable commands:")
-    print(f"{colored('/edit', 'green'):<10} {colored(' Edit files or directories (followed by paths)', 'yellow')}")
-    print(f"{colored('/create', 'green'):<10} {colored('Create files or folders (followed by instructions)', 'yellow')}")
-    print(f"{colored('/add', 'green'):<10} {colored(' Add files or folders to context', 'yellow')}")
-    print(f"{colored('/debug', 'green'):<10} {colored(' Print the last AI response', 'yellow')}")
-    print(f"{colored('/reset', 'green'):<10} {colored(' Reset chat context and clear added files', 'yellow')}")
-    print(f"{colored('/review', 'green'):<10} {colored(' Review code files (followed by file paths)', 'yellow')}")
-    print(f"{colored('/planning', 'green'):<10} {colored(' Generate a detailed plan based on your request', 'yellow')}")
-    print(f"{colored('/quit', 'green'):<10} {colored(' Exit the program', 'yellow')}")
-    print(f"{colored('/algo', 'green'):<10} {colored(' Explain concept in Algorand blockchain and explore all assets, applications, accounts and transactions on Algorand.', 'yellow')}")
+    table = Table(title="Algo engineer ready to help you solve problems 🤖", show_lines=True, box=box.SQUARE, title_justify="center", title_style="bold red")
+    
+    table.add_column("Command", style="green", no_wrap=True)
+    table.add_column("Description", style="yellow", justify="left")
+    
+    table.add_row("/edit", "Edit files or directories (followed by paths)")
+    table.add_row("/create", "Create files or folders (followed by instructions)")
+    table.add_row("/add", "Add files or folders to context")
+    table.add_row("/debug", "Print the last AI response")
+    table.add_row("/reset", "Reset chat context and clear added files")
+    table.add_row("/review", "Review code files (followed by file paths)")
+    table.add_row("/planning", "Generate a detailed plan based on your request")
+    table.add_row("/algo", "Explain and explore concepts in the Algorand blockchain")
+    table.add_row("/quit", "Exit the program")
+    
+    console.print(table)
 
     style = Style.from_dict({
         'prompt': 'cyan',
@@ -709,9 +718,9 @@ Files to modify:
                 elif command.startswith("explore "):
                     query = command.split("explore ", 1)[1]
                     result = algo_explorer(query)
-                    console.print(result)  # Print JSON directly or further process it
+                    console.print(Panel(f"Details here 🔎\n: {result}", highlight=True))  # Print JSON directly or further process it
                 else:
-                    print("Usage: /algo command. Try '/algo explain <concept>' or '/algo explore <account | transaction> <address | txid>'")
+                    print("Invalid: /algo command. Try '/algo explain <concept>' or '/algo explore <account | transaction> <address | txid>'")
             
             else:
                 print("Usage: /algo explain <concept>  or /algo explore <query>")        
