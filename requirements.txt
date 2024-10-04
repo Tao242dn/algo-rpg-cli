@@ -1,2 +1,5 @@
-rich
+google-generativeai
 py-algorand-sdk
+rich
+termcolor
+prompt_toolkit
