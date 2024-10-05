@@ -19,7 +19,7 @@ quests = [
     
     "Sharing the Spoils [red](command: send)[/red] Generosity is a virtue, even in the digital realm. Use the send command to send Algo to another Algorand account. This is like sharing your treasure with a fellow adventurer [bold](note: 1 Algo = 1_000_000 MicroAlgos)[/bold]",
     
-    "Project Genesis [red](command: init)[/red] Time to craft something new! Use the init command to initialize a new Algorand project. This creates the foundation for building your own smart contracts – the magical spells of the Algorand world.",
+    "Project Genesis [red](command: init)[/red] Time to craft something new! Use the init command to initialize a new Algorand project. This creates the foundation for building your own smart contracts – the magical spells of the Algorand world. We recommend using project name [red]auction_project[/red] match with my default template.",
     
     "Constructing the Spell [red](command: build)[/red]: With a project in place, you can now begin building your smart contract. The build command compiles your code into the bytecode that the Algorand Virtual Machine (AVM) understands. This is like carefully inscribing the runes of your spell.",
     
