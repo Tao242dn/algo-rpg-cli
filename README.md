@@ -23,7 +23,7 @@ Before you begin, ensure you have met the following requirements:
 - [AlgoKit](https://developer.algorand.org/docs/get-started/algokit/#install-algokit) installed
 - [Python](https://www.python.org/downloads/) (3.12 or higher) installed
   
-## ⚙️ Installation
+## 🛠️ Installation
 
 Follow these steps to get the project up and running on your local machine:
 
