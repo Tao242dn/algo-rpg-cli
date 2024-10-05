@@ -2,6 +2,7 @@ import subprocess
 import time
 import random
 import os
+from dotenv import load_dotenv
 from algo_eng import start_algo_eng
 from contents import plot_summary, quests, choice_content, after_credits
 from rich import box
@@ -12,6 +13,7 @@ from rich.prompt import Prompt
 from algosdk import account, mnemonic, transaction
 from algosdk.v2client import algod
 
+load_dotenv('.env')
 console = Console()
 
 def print_quest_not_completed():
@@ -169,7 +171,7 @@ class AlgorandQuest():
     def process_fund_account(self, action: str):
         if action.lower().strip() == "fund":
             amount = "10000000"
-            from_addr = "B7445LSKMBOQPOJ7DAAJRS3HJBFXWDLBNRDDBK4KN4OO2EUFOYM466OXHI"
+            from_addr = os.getenv("ALGO_ADDRESS", "")
             try:
                 result = subprocess.run(["algokit", "goal", "clerk", "send", "-a", amount, "-f", from_addr, "-t",    self.player["address"]], capture_output=True, text=True)
                 if result.returncode == 0:
@@ -196,13 +198,14 @@ class AlgorandQuest():
         if action.lower().strip() == "send":
             receive_addr = console.input("[bold yellow]Enter the address or username of the receiver to send Algo 📝: [/bold yellow]")
             amount = console.input("[bold yellow]Enter the amount of Algo to send 💵: [/bold yellow]")
+            note = console.input("[bold yellow]Enter the note to send receiver (Optional) 🤗: [/bold yellow]") or f"Sending Algo to {receive_addr} from {self.player["address"]} 💵."
             amount_microalgos = str(int(float(amount) * 1000000))
             try:
-                result = subprocess.run(["algokit", "goal", "clerk", "send", "-a", amount_microalgos, "-f", self.player["address"], "-t", receive_addr], capture_output=True, text=True)
+                result = subprocess.run(["algokit", "goal", "clerk", "send", "-a", amount_microalgos, "-f", self.player["address"], "-t", receive_addr, "-n", note], capture_output=True, text=True)
                 
                 if result.returncode == 0:
                     account_info = self.algod_client.account_info(self.player["address"])
-                    console.print(Panel(f"[bold]Transaction successfully 🎉. Send {amount} Algo to [green]{receive_addr}[/green]\nTransaction fees: 0.001 Algo\nYour available balance is {account_info.get('amount') / 1000000} Algo\n[/bold]Transaction details below:\n{result.stdout}", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True)) # type: ignore
+                    console.print(Panel(f"[bold]Transaction successfully 🎉. Send {amount} Algo to [green]{receive_addr}[/green]\nMessage: {note}\nTransaction fees: 0.001 Algo\nYour available balance is {account_info.get('amount') / 1000000} Algo\n[/bold]Transaction details below:\n{result.stdout}", title="[bold green]Quest completed successfully ✅[/bold green]", border_style="bold green", expand=True, highlight=True)) # type: ignore
                     self.current_quest += 1
                 else:
                     console.print(Panel(f"[bold]Can't send Algo to {receive_addr} 😢: {result.stderr}[/bold]", title="[bold yellow]Command is executed but an error occurred ⚠️[/bold yellow]", border_style="bold yellow", expand=True, highlight=True))
@@ -216,9 +219,9 @@ class AlgorandQuest():
             
     def process_init_project(self, action: str):
         if action.lower().strip() == "init":
-            url = "https://github.com/Tao242dn/auction_template.git"
+            url = os.getenv("TEMPLATE_URL", "https://github.com/Tao242dn/auction_template.git")
             non_ie_option = "--UNSAFE-SECURITY-accept-template-url"
-            project_name = console.input("[bold yellow]Enter the name of the project ⌨️ : [/bold yellow]")
+            project_name = console.input("[bold yellow]Enter the name of the project ⌨️ : [/bold yellow]") or "auction_project"
             self.player = {
                 "project_directory": project_name + "/"
             }
