@@ -42,16 +42,16 @@ class AlgorandQuest():
                 
         console.print("\n")
         while True:
-            choice = Prompt.ask(choice_content, choices=["q&a", "game", "quit"])
+            choice = Prompt.ask(choice_content, choices=["1", "2", "3"])
             match(choice):
-                case "q&a":
+                case "1":
                     console.print("\n")
                     start_algo_eng()
-                case "game":
+                case "2":
                     self.setup_algod_client()
                     self.main_game_loop()
-                case "quit":
-                    console.print(Panel("[bold yellow]Thank you for visiting AlgoRPG! Bye bye! 👋[/bold yellow]", title="[bold red]Game Over[/bold red]", border_style="bold", expand=True))
+                case "3":
+                    console.print(Panel("[bold yellow]Thank you for visiting AlgoRPG! Bye bye! Hope you comeback again! We miss you 👋[/bold yellow]", title="[bold red]Game Over[/bold red]", border_style="bold", expand=True))
                     break
                 case _:
                     console.print(Panel("[bold yellow]Invalid choice. Please try again.[/bold yellow]", title="[bold red]Oops! Something went wrong 😭[/bold red]", border_style="bold", expand=True))
@@ -71,11 +71,15 @@ class AlgorandQuest():
             console.print("\n")
             self.display_current_quest()
             action = console.input("[bold yellow]What would you like to do 🤔: [/bold yellow]")
+            
+            if self.process_action(action):
+                break
+                
             with console.status("", spinner="dots") as status:
                 status.update("Executing command...")
                 time.sleep(3)  # simulate a long-running task    
             self.process_action(action)
-    
+            
     def display_current_quest(self):
         quest_description = {
             (1, 1): quests[0],
@@ -96,6 +100,10 @@ class AlgorandQuest():
         console.print(Panel(f"[yellow]Quest[/yellow]: [green][bold]{current_quest}[/bold][/green]", title=f"[bold red]Quest {self.current_quest} in Act {self.current_act}[/bold red]", box=box.SQUARE, border_style="bold", expand=True, highlight=True))
         
     def process_action(self, action: str):
+        if action.lower().strip() == "quit":
+            console.print(Panel("[bold yellow]Thank you for playing game! Goodbye! See you soon! 😊[/bold yellow]", title="[bold red]Game Exit[/bold red]", border_style="bold", expand=True))
+            return True  
+        
         match(self.current_act, self.current_quest):
             case (1, 1):
                 self.process_check_env(action)
@@ -125,6 +133,8 @@ class AlgorandQuest():
         if self.current_quest > self.quests_structure[self.current_act]:
             self.current_act += 1
             self.current_quest = 1
+        
+        return False    
     
     def process_check_env(self, action: str):
         if action.lower().strip() == "env":
