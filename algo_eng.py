@@ -5,6 +5,7 @@ import time
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai
+from google.generativeai import GenerationConfig
 from termcolor import colored
 from prompt_toolkit import prompt
 from prompt_toolkit.styles import Style
@@ -30,7 +31,7 @@ model = genai.GenerativeModel('gemini-1.5-pro')
 logging.basicConfig(filename='algo_eng.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 ALGOD_ADDRESS = "https://testnet-api.algonode.cloud"  # Replace with your Algod address we are using testnet
-ALGOD_TOKEN = "a" * 64     
+ALGOD_TOKEN = "a" * 64
 INDEXER_ADDRESS = "https://testnet-idx.algonode.cloud" # Replace with your indexer address we are using testnet
 INDEXER_TOKEN = "a" * 64
 
@@ -151,7 +152,7 @@ Ensure the entire content is rewritten from top to bottom incorporating the spec
 7. Do not include any explanations, additional text, or code block markers (such as ```html or ```).
 
 Provide the output as the FULLY NEW WRITTEN file(s).
-NEVER ADD ANY CODE BLOCK MARKER AT THE BEGINNING OF THE FILE OR AT THE END OF THE FILE (such as ```html or ```). 
+NEVER ADD ANY CODE BLOCK MARKER AT THE BEGINNING OF THE FILE OR AT THE END OF THE FILE (such as ```html or ```).
 
 """
 
@@ -330,10 +331,10 @@ def apply_creation_steps(creation_response, added_files, retry_count=0):
         for code in code_blocks:
             # Extract file/folder information from the special comment line
             info_match = re.match(r'### (FILE|FOLDER): (.+)', code.strip())
-            
+
             if info_match:
                 item_type, path = info_match.groups()
-                
+
                 if item_type == 'FOLDER':
                     # Create the folder
                     os.makedirs(path, exist_ok=True)
@@ -448,7 +449,10 @@ def chat_with_ai(user_message, is_edit_request=False, retry_count=0, added_files
             print(colored("Algo engineer is thinking...", "magenta"))
             logging.info("Sending general query to AI.")
 
-        response = model.generate_content(message_content)
+        response = model.generate_content(
+            message_content,
+            generation_config=GenerationConfig(temperature=0.0, max_output_tokens=1500, top_p=0.95, top_k=40)
+        )
         logging.info("Received response from AI.")
         last_ai_response = response.text
 
@@ -464,13 +468,13 @@ def chat_with_ai(user_message, is_edit_request=False, retry_count=0, added_files
         print(colored(f"Error while communicating with Germini: {e}", "red"))
         logging.error(f"Error while communicating with Germini: {e}")
         return None
-        
+
 def algo_explain(concept):
     """Explains an Algorand concept using Algo."""
     prompt = f"Explain the concept of '{concept}' in the Algorand blockchain to a beginner. Use simple language and provide practical examples to illustrate how it works in real-life scenarios."
     response = chat_with_ai(prompt)
-    return response        
-    
+    return response
+
 
 def algo_explorer(query):  #  Simplified example, needs error handling
     """Queries the Algorand blockchain using the indexer."""
@@ -493,10 +497,10 @@ def start_algo_eng():
     global last_ai_response, conversation_history
 
     table = Table(title="Algo engineer ready to help you solve problems 🤖", show_lines=True, box=box.SQUARE, title_justify="center", title_style="bold red")
-    
+
     table.add_column("Command", style="green", no_wrap=True)
     table.add_column("Description", style="yellow", justify="left")
-    
+
     table.add_row("/edit", "Edit files or directories (followed by paths)")
     table.add_row("/create", "Create files or folders (followed by instructions)")
     table.add_row("/add", "Add files or folders to context")
@@ -506,7 +510,7 @@ def start_algo_eng():
     table.add_row("/planning", "Generate a detailed plan based on your request")
     table.add_row("/algo", "Explain and explore concepts in the Algorand blockchain")
     table.add_row("/quit", "Exit the program")
-    
+
     console.print(table)
 
     style = Style.from_dict({
@@ -605,7 +609,7 @@ Files to modify:
                 edit_request += f"\nFile: {file_path}\nContent:\n{content}\n\n"
 
             ai_response = chat_with_ai(edit_request, is_edit_request=True, added_files=added_files)
-            
+
             if ai_response:
                 print("Algo engineer: Here are the suggested edit instructions:")
                 rprint(Markdown(ai_response))
@@ -629,7 +633,7 @@ Files to modify:
 
             create_request = f"{CREATE_SYSTEM_PROMPT}\n\nUser request: {creation_instruction}"
             ai_response = chat_with_ai(create_request, is_edit_request=False, added_files=added_files)
-            
+
             if ai_response:
                 while True:
                     print("Algo engineer: Here is the suggested creation structure:")
@@ -682,7 +686,7 @@ Files to modify:
 
             print(colored("Analyzing code and generating review...", "magenta"))
             ai_response = chat_with_ai(review_request, is_edit_request=False, added_files=added_files)
-            
+
             if ai_response:
                 print()
                 print(colored("Code Review:", "blue"))
@@ -705,7 +709,7 @@ Files to modify:
             else:
                 print(colored("Failed to generate a planning response. Please try again.", "red"))
                 logging.error("AI failed to generate a planning response.")
-                
+
         elif user_input.startswith('/algo'):
             parts = user_input.split(maxsplit=1)
             if len(parts) > 1:
@@ -721,9 +725,9 @@ Files to modify:
                     console.print(Panel(f"Details here 🔎\n: {result}", highlight=True))  # Print JSON directly or further process it
                 else:
                     print("Invalid: /algo command. Try '/algo explain <concept>' or '/algo explore <account | transaction> <address | txid>'")
-            
+
             else:
-                print("Usage: /algo explain <concept>  or /algo explore <query>")        
+                print("Usage: /algo explain <concept>  or /algo explore <query>")
 
         else:
             ai_response = chat_with_ai(user_input, added_files=added_files)
@@ -732,5 +736,3 @@ Files to modify:
                 print(colored("Algo engineer:", "blue"))
                 rprint(Markdown(ai_response))
                 logging.info("Provided AI response to user query.")
-
-
