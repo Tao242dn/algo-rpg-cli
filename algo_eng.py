@@ -503,7 +503,7 @@ def start_algo_eng():
 
     table.add_row("/edit", "Edit files or directories (followed by paths)")
     table.add_row("/create", "Create files or folders (followed by instructions)")
-    table.add_row("/add", "Add files or folders to context")
+    # table.add_row("/add", "Add files or folders to context")
     table.add_row("/debug", "Print the last AI response")
     table.add_row("/reset", "Reset chat context and clear added files")
     table.add_row("/review", "Review code files (followed by file paths)")
@@ -522,7 +522,7 @@ def start_algo_eng():
 
     # Create a WordCompleter with available commands and files
     completer = WordCompleter(
-        ['/edit', '/create', '/add', '/quit', '/debug', '/reset', '/review', '/planning', '/algo'] + files,
+        ['/edit', '/create', '/quit', '/debug', '/reset', '/review', '/planning', '/algo'] + files,
         ignore_case=True
     )
 
@@ -578,7 +578,8 @@ def start_algo_eng():
                 logging.warning("Total size of added files exceeds 100KB.")
 
         elif user_input.startswith('/edit'):
-            paths = user_input.split()[1:]
+            paths_enter = console.input(f"Enter the file or folder paths to edit 📂: ").strip()
+            paths = paths_enter.split()[0:]
             if not paths:
                 print(colored("Please provide at least one file or folder path.", "red"))
                 logging.warning("User issued /edit without file or folder paths.")
@@ -599,7 +600,7 @@ def start_algo_eng():
             if not added_files:
                 print(colored("No valid files to edit.", "red"))
                 continue
-            edit_instruction = prompt(f"Edit Instruction for all files: ", style=style).strip()
+            edit_instruction = prompt(f"Edit instruction for all files: ", style=style).strip()
 
             edit_request = f"""User request: {edit_instruction}
 
@@ -655,7 +656,8 @@ Files to modify:
                         break
 
         elif user_input.startswith('/review'):
-            paths = user_input.split()[1:]
+            paths_enter = console.input(f"Enter the file or folder paths to edit 📂: ").strip()
+            paths = paths_enter.split()[0:]
             if not paths:
                 print(colored("Please provide at least one file or folder path.", "red"))
                 logging.warning("User issued /review without file or folder paths.")
