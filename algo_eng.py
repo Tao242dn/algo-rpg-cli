@@ -171,9 +171,9 @@ def is_binary_file(file_path):
             if b'\0' in chunk:
                 return True  # File is binary if it contains null bytes
             # Use a heuristic to detect binary content
-            text_characters = set(bytes(range(32, 127)) + b'\n\r\t\b')
-            non_text = sum(byte not in text_characters for byte in chunk)
-            if non_text / len(chunk) > 0.30:
+            text_characters = bytearray({7,8,9,10,12,13,27} | set(range(0x20, 0x100)))
+            non_text = chunk.translate(None, text_characters) # type: ignore
+            if len(non_text) / len(chunk) > 0.30: # type: ignore
                 return True  # Consider binary if more than 30% non-text characters
     except Exception as e:
         logging.error(f"Error reading file {file_path}: {e}")
