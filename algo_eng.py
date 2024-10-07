@@ -476,12 +476,12 @@ def algo_explain(concept):
     return response
 
 
-def algo_explorer(query):  #  Simplified example, needs error handling
+def algo_explorer(query: str):  #  Simplified example, needs error handling
     """Queries the Algorand blockchain using the indexer."""
     try:
         if query.startswith("account "):
             account_id = query.split("account ", 1)[1]
-            response = indexer_client.account_info(account_id)
+            response = indexer_client.account_info(address=account_id)
         elif query.startswith("transaction "):
             txid = query.split("transaction ", 1)[1]
             response = indexer_client.transaction(txid=txid)
