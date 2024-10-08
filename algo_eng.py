@@ -479,11 +479,11 @@ def algo_explain(concept):
 def algo_explorer(query: str):  #  Simplified example, needs error handling
     """Queries the Algorand blockchain using the indexer."""
     try:
-        if query.startswith("account "):
-            account_id = query.split("account ", 1)[1]
+        if query.startswith("account"):
+            account_id = console.input("Enter the address of the account to explore 🗃️: ").strip()
             response = indexer_client.account_info(address=account_id)
         elif query.startswith("transaction "):
-            txid = query.split("transaction ", 1)[1]
+            txid = console.input("Enter the ID of the transaction to explore 📋: ").strip()
             response = indexer_client.transaction(txid=txid)
         # ... Add more query types ...
         else:
@@ -724,7 +724,7 @@ Files to modify:
                 elif command.startswith("explore "):
                     query = command.split("explore ", 1)[1]
                     result = algo_explorer(query)
-                    console.print(Panel(f"Details here 🔎\n: {result}", highlight=True))  # Print JSON directly or further process it
+                    console.print(Panel(f"Details here 🔎:\n{result}", highlight=True))  # Print JSON directly or further process it
                 else:
                     print("Invalid: /algo command. Try '/algo explain <concept>' or '/algo explore <account | transaction> <address | txid>'")
 
