@@ -482,7 +482,7 @@ def algo_explorer(query: str):  #  Simplified example, needs error handling
         if query.startswith("account"):
             account_id = console.input("Enter the address of the account to explore 🗃️ : ").strip()
             response = indexer_client.account_info(address=account_id)
-        elif query.startswith("transaction "):
+        elif query.startswith("transaction"):
             txid = console.input("Enter the ID of the transaction to explore 📋: ").strip()
             response = indexer_client.transaction(txid=txid)
         # ... Add more query types ...
