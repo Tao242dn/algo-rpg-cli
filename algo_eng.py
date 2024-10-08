@@ -469,7 +469,7 @@ def chat_with_ai(user_message, is_edit_request=False, retry_count=0, added_files
         logging.error(f"Error while communicating with Germini: {e}")
         return None
 
-def algo_explain(concept):
+def algo_explain(concept: str):
     """Explains an Algorand concept using Algo."""
     prompt = f"Explain the concept of '{concept}' in the Algorand blockchain to a beginner. Use simple language and provide practical examples to illustrate how it works in real-life scenarios."
     response = chat_with_ai(prompt)
@@ -716,8 +716,8 @@ Files to modify:
             parts = user_input.split(maxsplit=1)
             if len(parts) > 1:
                 command = parts[1]
-                if command.startswith("explain "):
-                    concept = command.split("explain ", 1)[1]
+                if command.startswith("explain"):
+                    concept = console.input("Please enter Algorand concepts and I will help you answer 💬: ")
                     explanation = algo_explain(concept)
                     if explanation:
                         rprint(Markdown(explanation))
