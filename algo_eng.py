@@ -480,7 +480,7 @@ def algo_explorer(query: str):  #  Simplified example, needs error handling
     """Queries the Algorand blockchain using the indexer."""
     try:
         if query.startswith("account"):
-            account_id = console.input("Enter the address of the account to explore 🗃️: ").strip()
+            account_id = console.input("Enter the address of the account to explore 🗃️ : ").strip()
             response = indexer_client.account_info(address=account_id)
         elif query.startswith("transaction "):
             txid = console.input("Enter the ID of the transaction to explore 📋: ").strip()
