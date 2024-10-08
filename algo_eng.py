@@ -480,14 +480,14 @@ def algo_explorer(query: str):  #  Simplified example, needs error handling
     """Queries the Algorand blockchain using the indexer."""
     try:
         if query.startswith("account"):
-            account_id = console.input("Enter the address of the account to explore 🗃️ : ").strip()
+            account_id = console.input("[bold yellow]Enter the address of the account to explore 🗃️  : [/bold yellow]").strip()
             response = indexer_client.account_info(address=account_id)
         elif query.startswith("transaction"):
-            txid = console.input("Enter the ID of the transaction to explore 📋: ").strip()
+            txid = console.input("[bold yellow]Enter the ID of the transaction to explore 📋: [/bold yellow]").strip()
             response = indexer_client.transaction(txid=txid)
         # ... Add more query types ...
         else:
-            response = "Invalid query format. Try 'account <address>' or 'transaction <txid>'"
+            response = "[bold red]Invalid query format. Make sure address or txid is valid'[/bold red]"
         return json.dumps(response, indent=2) # Format the JSON for better readability
 
     except Exception as e:
@@ -578,7 +578,7 @@ def start_algo_eng():
                 logging.warning("Total size of added files exceeds 100KB.")
 
         elif user_input.startswith('/edit'):
-            paths_enter = console.input(f"Enter the file or folder paths to edit 📂: ").strip()
+            paths_enter = console.input(f"[bold yellow]Enter the file or folder paths to edit 📂 : [/bold yellow]").strip()
             paths = paths_enter.split()[0:]
             if not paths:
                 print(colored("Please provide at least one file or folder path.", "red"))
@@ -656,7 +656,7 @@ Files to modify:
                         break
 
         elif user_input.startswith('/review'):
-            paths_enter = console.input(f"Enter the file or folder paths to edit 📂: ").strip()
+            paths_enter = console.input(f"[bold yellow]Enter the file or folder paths to edit 📂 : [/bold yellow]").strip()
             paths = paths_enter.split()[0:]
             if not paths:
                 print(colored("Please provide at least one file or folder path.", "red"))
@@ -717,7 +717,7 @@ Files to modify:
             if len(parts) > 1:
                 command = parts[1]
                 if command.startswith("explain"):
-                    concept = console.input("Please enter Algorand concepts and I will help you answer 💬: ")
+                    concept = console.input("[bold yellow]Please enter Algorand concepts and I will help you answer 💬 : [/bold yellow]").strip()
                     explanation = algo_explain(concept)
                     if explanation:
                         rprint(Markdown(explanation))
@@ -726,10 +726,10 @@ Files to modify:
                     result = algo_explorer(query)
                     console.print(Panel(f"Details here 🔎:\n{result}", highlight=True))  # Print JSON directly or further process it
                 else:
-                    print("Invalid: /algo command. Try '/algo explain <concept>' or '/algo explore <account | transaction> <address | txid>'")
+                    print("[bold red]Invalid: /algo command. Try '/algo explain' or '/algo explore <account | transaction>'[/bold red]")
 
             else:
-                print("Usage: /algo explain <concept>  or /algo explore <query>")
+                print("[bold green]Usage: /algo explain <concept>  or /algo explore <query>[/bold green]")
 
         else:
             ai_response = chat_with_ai(user_input, added_files=added_files)
