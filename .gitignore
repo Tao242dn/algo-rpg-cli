@@ -2,6 +2,7 @@ venv/
 __pycache__/
 auction_project/
 .env-account
+*.txt
 *.png
 *.log
 *.env
