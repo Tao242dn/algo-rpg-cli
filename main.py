@@ -72,9 +72,6 @@ class AlgorandQuest():
             self.display_current_quest()
             action = console.input("[bold yellow]What would you like to do 🤔: [/bold yellow]")
             
-            if self.process_action(action):
-                break
-                
             with console.status("", spinner="dots") as status:
                 status.update("Executing command...")
                 time.sleep(3)  # simulate a long-running task    
@@ -100,10 +97,6 @@ class AlgorandQuest():
         console.print(Panel(f"[yellow]Quest[/yellow]: [green][bold]{current_quest}[/bold][/green]", title=f"[bold red]Quest {self.current_quest} in Act {self.current_act}[/bold red]", box=box.SQUARE, border_style="bold", expand=True, highlight=True))
         
     def process_action(self, action: str):
-        if action.lower().strip() == "quit":
-            console.print(Panel("[bold yellow]Thank you for playing game! Goodbye! See you soon! 😊[/bold yellow]", title="[bold red]Game Exit[/bold red]", border_style="bold", expand=True))
-            return True  
-        
         match(self.current_act, self.current_quest):
             case (1, 1):
                 self.process_check_env(action)
@@ -134,8 +127,7 @@ class AlgorandQuest():
             self.current_act += 1
             self.current_quest = 1
         
-        return False    
-    
+          
     def process_check_env(self, action: str):
         if action.lower().strip() == "env":
             try:
