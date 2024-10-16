@@ -393,7 +393,7 @@ def parse_edit_instructions(response):
     current_instructions = []
 
     for line in response.split('\n'):
-        if line.startswith("File: "):
+        if line.startswith("# File: "):
             if current_file:
                 instructions[current_file] = "\n".join(current_instructions)
             current_file = line[6:].strip()
@@ -656,7 +656,7 @@ Files to modify:
                         break
 
         elif user_input.startswith('/review'):
-            paths_enter = console.input(f"[bold yellow]Enter the file or folder paths to edit 📂 : [/bold yellow]").strip()
+            paths_enter = console.input(f"[bold yellow]Enter the file or folder paths to review 📂 : [/bold yellow]").strip()
             paths = paths_enter.split()[0:]
             if not paths:
                 print(colored("Please provide at least one file or folder path.", "red"))

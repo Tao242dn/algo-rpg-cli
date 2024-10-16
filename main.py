@@ -4,6 +4,7 @@ import random
 import os
 from dotenv import load_dotenv
 from algo_eng import start_algo_eng
+from quiz import quiz_battle
 from contents import plot_summary, quests, choice_content, after_credits
 from rich import box
 from rich.console import Console
@@ -42,7 +43,7 @@ class AlgorandQuest():
                 
         console.print("\n")
         while True:
-            choice = Prompt.ask(choice_content, choices=["1", "2", "3"])
+            choice = Prompt.ask(choice_content, choices=["1", "2", "3", "4"])
             match(choice):
                 case "1":
                     console.print("\n")
@@ -51,6 +52,8 @@ class AlgorandQuest():
                     self.setup_algod_client()
                     self.main_game_loop()
                 case "3":
+                    quiz_battle()    
+                case "4":
                     console.print(Panel("[bold yellow]Thank you for visiting AlgoRPG! Bye bye! Hope you comeback again! We miss you 👋[/bold yellow]", title="[bold red]Game Over[/bold red]", border_style="bold", expand=True))
                     break
                 case _:
