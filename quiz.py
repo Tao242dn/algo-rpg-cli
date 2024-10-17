@@ -1,42 +1,140 @@
+import random
+import csv
+import os
+from contents import qa_dict
+from datetime import datetime
 from rich.prompt import Prompt
 from rich.panel import Panel
 from rich.console import Console
+from rich.live import Live
+from rich.layout import Layout
+from rich.progress import BarColumn, Progress
+from rich.table import Table
+import re
 
 console = Console()
 
+
 def quiz_battle():
-    console.print(Panel("[bold green]Welcome to Quiz Battles![/bold green]", title="[bold blue]🧠 Algorand Quiz Battles 🧠", expand=True))
+    console.print("\n")
+    console.print(Panel("[bold yellow]Welcome to our Quiz Battles!\nIf you are confident in passing our challenges, start now\nYou only have [red]3[/red] chances to correct your mistakes. If you run out of chances, you will lose[/bold yellow]", title="[bold blue]🧠 Algorand Quiz Battles 🧠[/bold blue]", expand=True))
+    
+     # Get the player's name
+    player_name = get_player_name()
+    console.print(f"Hello, [bold cyan]{player_name}[/bold cyan]! Let's start the quiz.\n")
+    
+     # Get the difficulty level
+    num_questions = get_difficulty_level()
+    console.print(f"You've chosen to answer [bold cyan]{num_questions}[/bold cyan] questions. Let's begin!\n")
     
     # Start the quiz loop
-    quiz_loop()
-
-def quiz_loop():
-    questions_count = 3
-    correct_answers = 0
-
-    for _ in range(questions_count):
-        question, options, correct_option = get_random_question()
-        user_answer = ask_question(question, options)
-        if evaluate_answer(user_answer, correct_option):
-            correct_answers += 1
-            console.print("[bold green]Correct![/bold green]")
+    quiz_loop(player_name, num_questions)
+    
+def get_player_name():
+    while True:
+           name = Prompt.ask("Please enter your name (3-12 alphanumeric characters)")
+           # Validate the name using a regular expression
+           if re.match("^[A-Za-z0-9]{3,12}$", name):
+               return name
+           else:
+               console.print("[bold red]Invalid name.[/bold red] Please use 3-12 alphanumeric characters.\n")
+           
+def get_difficulty_level():
+    console.print(Panel("[bold green]Choose your difficulty level:[/bold green]\n\n[bold cyan]1.[/bold cyan] Easy (10 questions)\n[bold cyan]2.[/bold cyan] Medium (20 questions)\n[bold cyan]3.[/bold cyan] Hard (30 questions)", title="[bold yellow]Difficulty Level[/bold yellow]", expand=True))
+        
+    while True:
+        choice = Prompt.ask("Select a difficulty level", choices=["1", "2", "3"])
+        if choice == "1":
+            return 10  # Easy
+        elif choice == "2":
+            return 20  # Medium
+        elif choice == "3":
+            return 30  # Hard
         else:
-            console.print(f"[bold red]Wrong! The correct answer was {correct_option}[/bold red]")
-        console.print("\\n")
+            return
 
-    console.print(Panel(f"You got {correct_answers}/{questions_count} correct!", title="Quiz Summary", expand=True))
+def quiz_loop(player_name, num_questions):
+    correct_answers = 0
+    hearts = 3
+                
+    # Randomize questions from the pool
+    questions = random.sample(list(qa_dict.keys()), num_questions)
+                
+    for i, question in enumerate(questions, start=1):
+        correct_answer = qa_dict[question][1]  # The second element is always the correct answer
+                
+        # Shuffle the answer options
+        options = random.sample(qa_dict[question][0], len(qa_dict[question][0]))
+                    
+        console.print(f"\n[bold green]Question {i}:[/bold green] [bold yellow]{question}[/bold yellow]")
+        ask_question(options)
+        
+        user_input = Prompt.ask("Choose the correct option:", choices=[str(i) for i in range(1, len(options) + 1)])
+    
+        user_answer = options[int(user_input) - 1] 
+    
+        if user_answer.strip().lower() == correct_answer.strip().lower():
+            console.print("[bold green]Correct![/bold green]")
+            correct_answers += 1
+        else:
+            console.print(f"[bold red]Incorrect![/bold red] The correct answer was: [bold green]{correct_answer}[/bold green]")
+            hearts -= 1
+                
+        if hearts == 0:
+            console.print("[bold red]Game Over![/bold red]")
+            break
+    
+    # Save results to CSV after the game
+    save_results_to_csv(player_name, correct_answers, num_questions)
+    
+    # Display results from CSV
+    display_results_from_csv()
 
-def get_random_question():
-    # Placeholder for random question selection logic
-    question = "What is the native currency of the Algorand blockchain?"
-    options = ["ALGO", "ETH", "BTC", "SOL"]
-    correct_option = "ALGO"
-    return question, options, correct_option
 
-def ask_question(question, options):
-    console.print(Panel(f"[bold yellow]{question}[/bold yellow]", title="Question"))
-    user_answer = Prompt.ask("Choose the correct option", choices=options)
-    return user_answer
+def ask_question(options):
+    for idx, option in enumerate(options, start=1):
+        console.print(f"[bold yellow]{idx}.[/bold yellow] {option}")
 
-def evaluate_answer(user_answer, correct_option):
-    return user_answer == correct_option
+
+def save_results_to_csv(player_name, correct_answers, total_questions):
+    filename = "quiz_results.csv"
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    # Check if the file exists; if not, create it and write the header
+    file_exists = os.path.isfile(filename)
+    
+    # Write to CSV file
+    with open(filename, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        if not file_exists:
+            writer.writerow(["Player Name", "Correct Answers", "Total Questions", "Date and Time"])
+               # Write the results
+        writer.writerow([player_name, correct_answers, total_questions, current_time])
+        
+def display_results_from_csv():
+    filename = "quiz_results.csv"
+    
+    console.print("\n[bold cyan]Quiz Results:[/bold cyan]")
+    
+    # Create a table for displaying results
+    table = Table()
+    table.add_column("Player Name", justify="left", style="cyan", no_wrap=True)
+    table.add_column("Correct Answers", justify="center", style="green")
+    table.add_column("Total Questions", justify="center", style="blue")
+    table.add_column("Date and Time", justify="center", style="magenta", no_wrap=True)
+    
+    results = []
+    
+    with open(filename, mode='r') as file:
+        reader = csv.reader(file)
+        # Skip header row
+        next(reader)
+        for row in reader:
+            results.append(row)
+            
+    results.sort(key=lambda x: datetime.strptime(x[3], "%Y-%m-%d %H:%M:%S"), reverse=True)
+
+    for row in results:
+        table.add_row(row[0], row[1], row[2], row[3])    
+    
+    console.print(table) 

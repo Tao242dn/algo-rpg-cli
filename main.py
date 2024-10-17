@@ -56,8 +56,6 @@ class AlgorandQuest():
                 case "4":
                     console.print(Panel("[bold yellow]Thank you for visiting AlgoRPG! Bye bye! Hope you comeback again! We miss you 👋[/bold yellow]", title="[bold red]Game Over[/bold red]", border_style="bold", expand=True))
                     break
-                case _:
-                    console.print(Panel("[bold yellow]Invalid choice. Please try again.[/bold yellow]", title="[bold red]Oops! Something went wrong 😭[/bold red]", border_style="bold", expand=True))
         
     def setup_algod_client(self):
         algo_token = "a" * 64

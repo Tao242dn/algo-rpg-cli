@@ -6,3 +6,4 @@ auction_project/
 *.png
 *.log
 *.env
+*.csv
