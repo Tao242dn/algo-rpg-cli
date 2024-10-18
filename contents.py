@@ -51,7 +51,7 @@ qa_dict = {
     
     "What is Algorand’s approach to scalability?": [["Sidechains", "Layer-2", "Sharding", "Efficient consensus"], "Efficient consensus"],
     
-    "How does Algorand achieve low transaction costs?": [["High gas fees", "Layer-2", "Efficient consensus", "Sharding"], "Efficient protocol design"],
+    "How does Algorand achieve low transaction costs?": [["High gas fees", "Layer-2", "Efficient consensus", "Sharding"], "Efficient consensus"],
     
     "What feature allows Algorand to handle multiple transactions simultaneously?": [["Parallel processing", "Atomic transfers", "Sharding", "Multi-threading"], "Atomic transfers"],
     
