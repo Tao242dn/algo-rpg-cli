@@ -1,21 +1,27 @@
 import random
 import csv
 import os
-
-from prompt_toolkit.shortcuts.prompt import _T
 from contents import qa_dict
 from datetime import datetime
 from rich.prompt import Prompt
 from rich.panel import Panel
 from rich.console import Console
-from rich.live import Live
-from rich.layout import Layout
-from rich.progress import BarColumn, Progress
 from rich.table import Table
 import re
 
 console = Console()
 
+def quiz_start():
+    console.print(Panel("[bold yellow]Welcome to our Algorand Quiz Challenges.\nFeel free to start any of the options below.[/bold yellow]", title="[bold blue]Alogrand Quiz Challenges[/bold blue]", expand=True))
+    console.print("[bold green]1.[/bold green] Start Quiz 🧩")
+    console.print("[bold green]2.[/bold green] View Question Analytics 📊")
+    
+    choice = Prompt.ask("Select an option 🤔", choices=["1", "2"])
+    
+    if choice == "1":
+        quiz_battle()
+    elif choice == "2":
+        display_question_analysis_from_csv()
 
 def quiz_battle():
     console.print("\n")
@@ -118,6 +124,7 @@ def quiz_loop(player_name, num_questions):
             console.print("[bold green]Correct![/bold green]")
             correct_answers += 1
             streak_counter += 1
+            save_question_analytics_to_csv(question, True)
             
             if heart_recovery_activated:
                 hearts += 1  # Restore 1 heart
@@ -159,6 +166,7 @@ def quiz_loop(player_name, num_questions):
             incorrect_answers += 1
             hearts -= 1
             console.print(f"[bold red]Incorrect![/bold red] The correct answer was: [bold green]{correct_answer}[/bold green]")
+            save_question_analytics_to_csv(question, False)
             console.print(f"[bold yellow]You have {hearts} heart[/bold yellow]")
             streak_counter = 0
             in_super_streak = False
@@ -204,8 +212,76 @@ def use_5050_lifeline(options, correct_answer):
 def use_spoiler(correct_answer):
     console.print(f"[bold yellow]Spoil Answer used! The correct answer is: [bold green]{correct_answer}[/bold green][/bold yellow]")
     return True
+
+def save_question_analytics_to_csv(question, correct):
+    filename = "question_analytics.csv"
+    file_exists = os.path.isfile(filename)
     
+    # Read the current data if the file exists
+    if file_exists:
+        with open(filename, mode='r') as file:
+            reader = csv.DictReader(file)
+            rows = list(reader)
+    else:
+        rows = []
     
+    # Check if the question already exists in the CSV
+    question_found = False
+    for row in rows:
+        if row['Question'] == question:
+            question_found = True
+            row['Total Attempts'] = int(row['Total Attempts']) + 1
+            if correct:
+                row['Correct Answers'] = int(row['Correct Answers']) + 1
+            else:
+                row['Incorrect Answers'] = int(row['Incorrect Answers']) + 1
+            row['Correct Percentage'] = round((int(row['Correct Answers']) / int(row['Total Attempts'])) * 100, 2)
+            row['Incorrect Percentage'] = round((int(row['Incorrect Answers']) / int(row['Total Attempts'])) * 100, 2)
+    
+    # If the question wasn't found, create a new entry
+    if not question_found:
+        new_row = {
+            'Question': question,
+            'Total Attempts': 1,
+            'Correct Answers': 1 if correct else 0,
+            'Incorrect Answers': 0 if correct else 1,
+            'Correct Percentage': 100.0 if correct else 0.0,
+            'Incorrect Percentage': 0.0 if correct else 100.0,
+        }
+        rows.append(new_row)
+    
+    # Write the updated data back to the CSV
+    with open(filename, mode='w', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=['Question', 'Total Attempts', 'Correct Answers', 'Incorrect Answers', 'Correct Percentage', 'Incorrect Percentage'])
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def display_question_analysis_from_csv():
+    filename = "question_analytics.csv"
+    
+    if not os.path.isfile(filename):
+        console.print("[bold red]No question analytics found![/bold red]")
+        return
+    
+    console.print("\n[bold cyan]Question Analytics:[/bold cyan]")
+    
+    table = Table(show_lines=True)
+    table.add_column("Question", justify="center", style="cyan", no_wrap=True)
+    table.add_column("Total Attempts", justify="center", style="green")
+    table.add_column("Correct Answers", justify="center", style="green")
+    table.add_column("Incorrect Answers", justify="center", style="red")
+    table.add_column("Correct %", justify="center", style="yellow")
+    table.add_column("Incorrect %", justify="center", style="red")
+    
+    with open(filename, mode='r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            table.add_row(row['Question'], row['Total Attempts'], row['Correct Answers'], row['Incorrect Answers'], row['Correct Percentage'], row['Incorrect Percentage'])
+    
+    console.print(table)
+
+        
 def save_results_to_csv(player_name, correct_answers, incorrect_answers, total_questions, total_streak_bonus, final_score):
     filename = "quiz_results.csv"
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
