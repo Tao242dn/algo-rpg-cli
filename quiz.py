@@ -57,13 +57,16 @@ def get_difficulty_level():
 
 def quiz_loop(player_name, num_questions):
     correct_answers = 0
+    incorrect_answers = 0
     hearts = 3
     used_5050 = False
-    used_skip = False
+    used_spoil = False   
     streak_counter = 0  # To track consecutive correct answers
     total_streak_bonus = 0  # To accumulate bonus points from streaks
     in_super_streak = False  # Flag for Super Streak Mode
     super_streak_questions = 0  # Counter for Super Streak questions
+    heart_recovery_activated = False
+    choice_option = ""
                
     # Randomize questions from the pool
     questions = random.sample(list(qa_dict.keys()), num_questions)
@@ -73,17 +76,22 @@ def quiz_loop(player_name, num_questions):
                 
         # Shuffle the answer options
         options = random.sample(qa_dict[question][0], len(qa_dict[question][0]))
+        
+        if hearts == 1 and not heart_recovery_activated:
+            heart_recovery_activated = True  # Activate heart recovery
+            console.print("[bold yellow]You are running low on hearts! Answer this question below correctly to restore [bold red]1 heart[/bold red].[/bold yellow]")
                     
         console.print(f"\n[bold green]Question {i}:[/bold green] [bold yellow]{question}[/bold yellow]")
         ask_question(options)
         
-        if not used_5050 or not used_skip:
+        if not used_5050 or not used_spoil:
             available_power_ups = []
         
             if not used_5050:
                 available_power_ups.append("1: 50/50")
-            if not used_skip:
-                available_power_ups.append("2: Skip Question")
+            if not used_spoil:
+                available_power_ups.append("2: Spoil Answer")
+                choice_option = ""
         
             available_power_ups.append("3: No Power-Up")
         
@@ -94,16 +102,15 @@ def quiz_loop(player_name, num_questions):
             if power_up_choice == "1" and not used_5050:
                 options = use_5050_lifeline(options, correct_answer)
                 used_5050 = True  # Mark 50/50 as used
+                choice_option = f"[bold green]1. {options[0]} or 2. {options[1]}[/bold green]"
                 console.print("[bold yellow]50/50 Lifeline used![/bold yellow]")
                     
             # Handle Skip Question
-            elif power_up_choice == "2" and not used_skip:
-                use_skip_question()
-                used_skip = True  # Mark Skip as used
-                console.print("[bold yellow]Skip Question used! Moving to next question.[/bold yellow]")
-                continue  # Skip to the next question
+            elif power_up_choice == "2" and not used_spoil:
+               used_spoil = use_spoiler(correct_answer)
         
-        user_input = Prompt.ask("Choose the correct option", choices=[str(i) for i in range(1, len(options) + 1)])
+       
+        user_input = Prompt.ask(f"Choose the correct option {choice_option}", choices=[str(i) for i in range(1, len(options) + 1)])
     
         user_answer = options[int(user_input) - 1] 
     
@@ -112,19 +119,30 @@ def quiz_loop(player_name, num_questions):
             correct_answers += 1
             streak_counter += 1
             
+            if heart_recovery_activated:
+                hearts += 1  # Restore 1 heart
+                heart_recovery_activated = False  # Disable heart recovery after restoring
+                console.print("[bold green]Congratulations! You've restored [bold red]1 heart[/bold red].[/bold green]")
+            
             if streak_counter == 3:    
-                console.print("[bold blue]Streak Bonus! +5 points for 3 correct answers in a row![/bold blue]")
+                console.print("[bold blue]Streak Bonus! +5 points for 3 correct answers![/bold blue]")
                 total_streak_bonus += 5
                     
             elif streak_counter == 5:
-                console.print("[bold blue]Streak Bonus! +10 points for 5 correct answers in a row![/bold blue]")
+                console.print("[bold blue]Streak Bonus! +10 points for 5 correct answers![/bold blue]")
                 total_streak_bonus += 10
                 
             elif streak_counter == 15:
-                console.print("[bold blue]Streak Bonus! +20 points for 15 correct answers in a row![/bold blue]")
+                console.print("[bold blue]Streak Bonus! +20 points for 15 correct answers![/bold blue]")
                 total_streak_bonus += 20
                 console.print("[bold yellow]🎉 Super Streak Mode Activated! Points will be doubled for the next 5 questions! 🎉[/bold yellow]")
                 in_super_streak = True  # Activate Super Streak Mode
+                
+            elif streak_counter == 25:
+                console.print("[bold blue]Streak Bonus! +30 points for 25 correct answers![/bold blue]")
+                total_streak_bonus += 30
+                console.print("[bold yellow]🎉 Super Streak Mode Activated! Points will be doubled for the next 5 questions! 🎉[/bold yellow]")
+                in_super_streak = True  # Activate Super Streak Mode    
             
             # Super Streak Mode logic
             if in_super_streak:
@@ -138,9 +156,10 @@ def quiz_loop(player_name, num_questions):
                     console.print("[bold yellow]Super Streak Mode Ended! Back to normal scoring.[/bold yellow]")    
                 
         else:
+            incorrect_answers += 1
             hearts -= 1
             console.print(f"[bold red]Incorrect![/bold red] The correct answer was: [bold green]{correct_answer}[/bold green]")
-            console.print(f"[bold yellow]You have {hearts} chances[/bold yellow]")
+            console.print(f"[bold yellow]You have {hearts} heart[/bold yellow]")
             streak_counter = 0
             in_super_streak = False
                 
@@ -152,7 +171,7 @@ def quiz_loop(player_name, num_questions):
     final_score = correct_answers + total_streak_bonus
     
     # Save results to CSV after the game
-    save_results_to_csv(player_name, correct_answers, num_questions, total_streak_bonus, final_score)
+    save_results_to_csv(player_name, correct_answers, incorrect_answers, num_questions, total_streak_bonus, final_score)
     
     # Display results from CSV
     display_results_from_csv()
@@ -181,14 +200,13 @@ def use_5050_lifeline(options, correct_answer):
         
     return remaining_options
     
- 
-def use_skip_question():
-    console.print("[bold yellow]You have chosen to skip this question![/bold yellow]")
-    # Simply skip the question and continue the loop
-    pass  # Just move to the next question in the quiz loop
+     
+def use_spoiler(correct_answer):
+    console.print(f"[bold yellow]Spoil Answer used! The correct answer is: [bold green]{correct_answer}[/bold green][/bold yellow]")
+    return True
     
-            
-def save_results_to_csv(player_name, correct_answers, total_questions, total_streak_bonus, final_score):
+    
+def save_results_to_csv(player_name, correct_answers, incorrect_answers, total_questions, total_streak_bonus, final_score):
     filename = "quiz_results.csv"
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
@@ -199,10 +217,10 @@ def save_results_to_csv(player_name, correct_answers, total_questions, total_str
     with open(filename, mode='a', newline='') as file:
         writer = csv.writer(file)
         if not file_exists:
-            writer.writerow(["Player Name", "Correct Answers", "Total Questions", "Total Streak Bonus", "Final Score", "Date and Time"])
+            writer.writerow(["Player Name", "Correct Answers", "Incorrect Answers", "Total Questions", "Total Streak Bonus", "Final Score", "Date and Time"])
             
         # Write the results
-        writer.writerow([player_name, correct_answers, total_questions, total_streak_bonus, final_score, current_time])
+        writer.writerow([player_name, correct_answers, incorrect_answers, total_questions, total_streak_bonus, final_score, current_time])
         
         
 def display_results_from_csv():
@@ -214,6 +232,7 @@ def display_results_from_csv():
     table = Table(show_lines=True)
     table.add_column("Player Name", justify="center", style="cyan", no_wrap=True)
     table.add_column("Correct Answers", justify="center", style="green")
+    table.add_column("Incorrect Answers", justify="center", style="green")
     table.add_column("Total Questions", justify="center", style="blue")
     table.add_column("Total Streak Bonus", justify="center", style="blue")
     table.add_column("Final Score", justify="center", style="yellow")
@@ -228,9 +247,9 @@ def display_results_from_csv():
         for row in reader:
             results.append(row)
             
-    results.sort(key=lambda x: datetime.strptime(x[5], "%Y-%m-%d %H:%M:%S"), reverse=True)
+    results.sort(key=lambda x: datetime.strptime(x[6], "%Y-%m-%d %H:%M:%S"), reverse=True)
 
     for row in results:
-        table.add_row(row[0], row[1], row[2], row[3], row[4], row[5])
+        table.add_row(row[0], row[1], row[2], row[3], row[4], row[5], row[6])
     
     console.print(table) 
