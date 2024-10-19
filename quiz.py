@@ -12,6 +12,7 @@ import re
 console = Console()
 
 def quiz_start():
+    console.print("\n")
     console.print(Panel("[bold yellow]Welcome to our Algorand Quiz Challenges.\nFeel free to start any of the options below.[/bold yellow]", title="[bold blue]Alogrand Quiz Challenges[/bold blue]", expand=True))
     console.print("[bold green]1.[/bold green] Start Quiz 🧩")
     console.print("[bold green]2.[/bold green] View Question Analytics 📊")
@@ -60,6 +61,7 @@ def get_difficulty_level():
             return 30  # Hard
         else:
             return
+            
 
 def quiz_loop(player_name, num_questions):
     correct_answers = 0
@@ -73,6 +75,7 @@ def quiz_loop(player_name, num_questions):
     super_streak_questions = 0  # Counter for Super Streak questions
     heart_recovery_activated = False
     choice_option = ""
+    already_used_5050 = 0
                
     # Randomize questions from the pool
     questions = random.sample(list(qa_dict.keys()), num_questions)
@@ -97,7 +100,7 @@ def quiz_loop(player_name, num_questions):
                 available_power_ups.append("1: 50/50")
             if not used_spoil:
                 available_power_ups.append("2: Spoil Answer")
-                choice_option = ""
+                
         
             available_power_ups.append("3: No Power-Up")
         
@@ -108,15 +111,22 @@ def quiz_loop(player_name, num_questions):
             if power_up_choice == "1" and not used_5050:
                 options = use_5050_lifeline(options, correct_answer)
                 used_5050 = True  # Mark 50/50 as used
-                choice_option = f" [bold green]1. {options[0]} or 2. {options[1]}[/bold green]"
+                already_used_5050 += 1
                 console.print("[bold yellow]50/50 Lifeline used![/bold yellow]")
                     
             # Handle Skip Question
             elif power_up_choice == "2" and not used_spoil:
                used_spoil = use_spoiler(correct_answer)
         
-       
-        user_input = Prompt.ask(f"Choose the correct option{choice_option}", choices=[str(i) for i in range(1, len(options) + 1)])
+        # choice_option = f" [bold green]1. {options[0]} or 2. {options[1]}[/bold green]" if used_5050 == True else ""
+        
+        if used_5050 == True and already_used_5050 == 1:
+            choice_option = f" [bold green]1. {options[0]} or 2. {options[1]}"
+            already_used_5050 = 0
+        elif already_used_5050 == 0:
+            choice_option = ""
+        
+        user_input = Prompt.ask(f"Choose the correct option{choice_option}", choices=[str(i) for i in range(1, len(options) + 1)], default=3)
     
         user_answer = options[int(user_input) - 1] 
     
@@ -212,6 +222,7 @@ def use_5050_lifeline(options, correct_answer):
 def use_spoiler(correct_answer):
     console.print(f"[bold yellow]Spoil Answer used! The correct answer is: [bold green]{correct_answer}[/bold green][/bold yellow]")
     return True
+    
 
 def save_question_analytics_to_csv(question, correct):
     filename = "question_analytics.csv"
@@ -264,9 +275,7 @@ def display_question_analysis_from_csv():
         console.print("[bold red]No question analytics found![/bold red]")
         return
     
-    console.print("\n[bold cyan]Question Analytics:[/bold cyan]")
-    
-    table = Table(show_lines=True)
+    table = Table(title="Question Analytics 📋", show_lines=True, title_style="bold cyan")
     table.add_column("Question", justify="center", style="cyan", no_wrap=True)
     table.add_column("Total Attempts", justify="center", style="blue")
     table.add_column("Correct Answers", justify="center", style="green")
@@ -302,10 +311,8 @@ def save_results_to_csv(player_name, correct_answers, incorrect_answers, total_q
 def display_results_from_csv():
     filename = "quiz_results.csv"
     
-    console.print("\n[bold cyan]Quiz Results:[/bold cyan]")
-    
     # Create a table for displaying results
-    table = Table(show_lines=True)
+    table = Table(title="Quiz Results", show_lines=True, title_style="bold cyan")
     table.add_column("Player Name", justify="center", style="cyan", no_wrap=True)
     table.add_column("Correct Answers", justify="center", style="green")
     table.add_column("Incorrect Answers", justify="center", style="green")
