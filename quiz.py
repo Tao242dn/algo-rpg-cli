@@ -108,7 +108,7 @@ def quiz_loop(player_name, num_questions):
             if power_up_choice == "1" and not used_5050:
                 options = use_5050_lifeline(options, correct_answer)
                 used_5050 = True  # Mark 50/50 as used
-                choice_option = f"[bold green]1. {options[0]} or 2. {options[1]}[/bold green]"
+                choice_option = f" [bold green]1. {options[0]} or 2. {options[1]}[/bold green]"
                 console.print("[bold yellow]50/50 Lifeline used![/bold yellow]")
                     
             # Handle Skip Question
@@ -116,7 +116,7 @@ def quiz_loop(player_name, num_questions):
                used_spoil = use_spoiler(correct_answer)
         
        
-        user_input = Prompt.ask(f"Choose the correct option {choice_option}", choices=[str(i) for i in range(1, len(options) + 1)])
+        user_input = Prompt.ask(f"Choose the correct option{choice_option}", choices=[str(i) for i in range(1, len(options) + 1)])
     
         user_answer = options[int(user_input) - 1] 
     
@@ -268,11 +268,11 @@ def display_question_analysis_from_csv():
     
     table = Table(show_lines=True)
     table.add_column("Question", justify="center", style="cyan", no_wrap=True)
-    table.add_column("Total Attempts", justify="center", style="green")
+    table.add_column("Total Attempts", justify="center", style="blue")
     table.add_column("Correct Answers", justify="center", style="green")
     table.add_column("Incorrect Answers", justify="center", style="red")
-    table.add_column("Correct %", justify="center", style="yellow")
-    table.add_column("Incorrect %", justify="center", style="red")
+    table.add_column("Rate Correct (%)", justify="center", style="yellow")
+    table.add_column("Rate Incorrect (%)", justify="center", style="red")
     
     with open(filename, mode='r') as file:
         reader = csv.DictReader(file)

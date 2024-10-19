@@ -393,7 +393,7 @@ def parse_edit_instructions(response):
     current_instructions = []
 
     for line in response.split('\n'):
-        if line.startswith("# File: "):
+        if line.startswith("File: "):
             if current_file:
                 instructions[current_file] = "\n".join(current_instructions)
             current_file = line[6:].strip()
@@ -726,10 +726,10 @@ Files to modify:
                     result = algo_explorer(query)
                     console.print(Panel(f"Details here 🔎:\n{result}", highlight=True))  # Print JSON directly or further process it
                 else:
-                    print("[bold red]Invalid: /algo command. Try '/algo explain' or '/algo explore <account | transaction>'[/bold red]")
+                    console.print("[bold red]Invalid: /algo command. Try '/algo explain' or '/algo explore <account | transaction>'[/bold red]")
 
             else:
-                print("[bold green]Usage: /algo explain <concept>  or /algo explore <query>[/bold green]")
+                console.print("[bold green]Usage: /algo explain <concept>  or /algo explore <query>[/bold green]")
 
         else:
             ai_response = chat_with_ai(user_input, added_files=added_files)
