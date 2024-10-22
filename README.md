@@ -1,4 +1,4 @@
-# 🎮 Algo RPG CLI
+# 🎮 AlgoRPG CLI
 
 A command-line interface tool built with Algorand blockchain integration. Help learn Algorand effortlessly with our <b>AI powered by Gemini 1.5 Pro</b>. Get instant explanations, explore the blockchain, and master key concepts interactively.
 
