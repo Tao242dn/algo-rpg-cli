@@ -76,7 +76,7 @@ Follow these steps to get the project up and running on your local machine:
    - You can pass custom your template url to the `TEMPLATE_URL` variable. Default value is `https://github.com/Tao242dn/auction_template.git`.
 
    
-7. Run the game:
+7. Let run it:
    ```bash
    python main.py
    ```
